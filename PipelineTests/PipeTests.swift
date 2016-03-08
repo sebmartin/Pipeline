@@ -65,4 +65,36 @@ class PipeTests: XCTestCase {
     
     XCTAssertEqual(output, "test")
   }
+  
+  func testPipesCanUseOperator() {
+    var output: String?
+    let pipeline = Pipe() |- Drain { output = $0 }
+    
+    pipeline.insert("test")
+    
+    XCTAssertEqual(output, "test")
+  }
+  
+  func testConsecutivePipesCanBeConnectedToFormPipeline() {
+    var output: Int?
+    let pipeline = Pipe { return $0 + 1 } |- Pipe { return $0 + 2 } |- Drain { output = $0 }
+    
+    pipeline.insert(1)
+    
+    XCTAssertEqual(output, 4)
+  }
+  
+  func testPipesCanSplitToMultipleDrainsUsingOperator() {
+    // 1 -> Pipe(+1) -> Pipe(+2) -> 4
+    //            \---> Pipe(+3) -> 5
+    var output1: Int?, output2: Int?
+    let pipeline = Pipe { return $0 + 1 }
+    pipeline |- Pipe { return $0 + 2 } |- Drain { output1 = $0 }
+    pipeline |- Pipe { return $0 + 3 } |- Drain { output2 = $0 }
+    
+    pipeline.insert(1)
+    
+    XCTAssertEqual(output1, 4)
+    XCTAssertEqual(output2, 5)
+  }
 }
