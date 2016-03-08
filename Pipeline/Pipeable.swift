@@ -19,3 +19,15 @@ public extension Pipe {
     pipeable.pipe().connect(self)
   }
 }
+
+func |- <PL: Pipeable, PR: Pipeable where PL.DefaultPipeOutput == PR.DefaultPipeInput> (left: PL, right: PR) -> Pipe<PL.DefaultPipeInput,PL.DefaultPipeOutput> {
+  return left.pipe().connect(right.pipe())
+}
+
+func |- <PL: Pipeable, X, Y where PL.DefaultPipeOutput == X> (left: PL, right: Pipe<X,Y>) -> Pipe<PL.DefaultPipeInput,PL.DefaultPipeOutput> {
+  return left.pipe().connect(right)
+}
+
+func |- <PL: Pipeable, Output where PL.DefaultPipeOutput == Output> (left: PL, right: Drain<Output>) -> Pipe<PL.DefaultPipeInput,PL.DefaultPipeOutput> {
+  return left.pipe().connect(right)
+}
