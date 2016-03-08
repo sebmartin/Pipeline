@@ -35,11 +35,11 @@ class PipeableTests: XCTestCase {
   func testPipeableUsesDefaultOutputWhenPipedToDrainUsingOperator() {
     let custom = IntToStringCustomType()
     var output: String?
-    custom |- Drain {
+    let pipeline = custom |- Drain {
       output = $0
     }
     
-    custom.defaultPipe.insert(1)
+    pipeline.insert(1)
     
     XCTAssertEqual(output, "custom 1")
   }
@@ -47,11 +47,11 @@ class PipeableTests: XCTestCase {
   func testPipeableUsesDefaultInputOutputWhenPipedToPipeUsingOperator() {
     let custom = IntToStringCustomType()
     var output: String?
-    custom |- Pipe<String,Void> {
+    let pipeline = custom |- Pipe<String,Void> {
       output = $0
     }
     
-    custom.defaultPipe.insert(1)
+    pipeline.insert(1)
     
     XCTAssertEqual(output, "custom 1")
   }
@@ -60,13 +60,47 @@ class PipeableTests: XCTestCase {
     let custom1 = IntToIntCustomType()
     let custom2 = IntToIntCustomType()
     var output: Int?
-    custom1 |- custom2 |- Drain {
+    let pipeline = custom1 |- custom2 |- Drain {
       output = $0
     }
     
-    custom1.defaultPipe.insert(1)
+    pipeline.insert(1)
     
     XCTAssertEqual(output, 3)
+  }
+  
+  func testConsecutivePipeablesCanBeConnectedToFormPipelineUsingOperator() {
+    let custom1 = IntToIntCustomType()
+    let custom2 = IntToIntCustomType()
+    
+    var output: Int?
+    let pipeline = Pipe<Int,Int>() |- custom1 |- custom2 |- Pipe<Int,Void> { output = $0 }
+    pipeline.insert(1)
+    
+    XCTAssertEqual(output, 3)
+  }
+  
+  func testPipesAndPipeablesCanBeMixedToFormPipelineUsingOperator() {
+    let custom1 = IntToIntCustomType()
+    let custom2 = IntToIntCustomType()
+    
+    var output: Int?
+    let pipeline = Pipe<Int,Int>() |- custom1 |- Pipe() |- custom2 |- Pipe<Int,Void> { output = $0 }
+    pipeline.insert(1)
+    
+    XCTAssertEqual(output, 3)
+  }
+  
+  func testPipeableCanBeAtTheBeginningOfPipeline() {
+    let custom = IntToStringCustomType()
+    var output: String?
+    let pipeline = custom |- Drain {
+      output = $0
+    }
+    
+    pipeline.insert(1)
+    
+    XCTAssertEqual(output, "custom 1")
   }
 }
 
