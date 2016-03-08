@@ -9,8 +9,10 @@
 /* Begin PBXBuildFile section */
 		96D5E1EE1C8E95B700DAD437 /* Pipeline.h in Headers */ = {isa = PBXBuildFile; fileRef = 96D5E1ED1C8E95B700DAD437 /* Pipeline.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		96D5E1F51C8E95B700DAD437 /* Pipeline.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96D5E1EA1C8E95B700DAD437 /* Pipeline.framework */; };
-		96D5E1FA1C8E95B700DAD437 /* PipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96D5E1F91C8E95B700DAD437 /* PipelineTests.swift */; };
+		96D5E1FA1C8E95B700DAD437 /* PipeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96D5E1F91C8E95B700DAD437 /* PipeTests.swift */; };
 		96D5E2051C8E95E400DAD437 /* Pipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96D5E2041C8E95E400DAD437 /* Pipe.swift */; };
+		96D5E2071C8E996800DAD437 /* Pipeable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96D5E2061C8E996800DAD437 /* Pipeable.swift */; };
+		96D5E20B1C8E9BB900DAD437 /* PipeableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96D5E20A1C8E9BB900DAD437 /* PipeableTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -28,9 +30,11 @@
 		96D5E1ED1C8E95B700DAD437 /* Pipeline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Pipeline.h; sourceTree = "<group>"; };
 		96D5E1EF1C8E95B700DAD437 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		96D5E1F41C8E95B700DAD437 /* PipelineTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PipelineTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		96D5E1F91C8E95B700DAD437 /* PipelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PipelineTests.swift; sourceTree = "<group>"; };
+		96D5E1F91C8E95B700DAD437 /* PipeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PipeTests.swift; sourceTree = "<group>"; };
 		96D5E1FB1C8E95B700DAD437 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		96D5E2041C8E95E400DAD437 /* Pipe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Pipe.swift; sourceTree = "<group>"; };
+		96D5E2061C8E996800DAD437 /* Pipeable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Pipeable.swift; sourceTree = "<group>"; };
+		96D5E20A1C8E9BB900DAD437 /* PipeableTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PipeableTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -73,9 +77,10 @@
 		96D5E1EC1C8E95B700DAD437 /* Pipeline */ = {
 			isa = PBXGroup;
 			children = (
-				96D5E2041C8E95E400DAD437 /* Pipe.swift */,
-				96D5E1ED1C8E95B700DAD437 /* Pipeline.h */,
 				96D5E1EF1C8E95B700DAD437 /* Info.plist */,
+				96D5E2041C8E95E400DAD437 /* Pipe.swift */,
+				96D5E2061C8E996800DAD437 /* Pipeable.swift */,
+				96D5E1ED1C8E95B700DAD437 /* Pipeline.h */,
 			);
 			path = Pipeline;
 			sourceTree = "<group>";
@@ -83,8 +88,9 @@
 		96D5E1F81C8E95B700DAD437 /* PipelineTests */ = {
 			isa = PBXGroup;
 			children = (
-				96D5E1F91C8E95B700DAD437 /* PipelineTests.swift */,
+				96D5E1F91C8E95B700DAD437 /* PipeTests.swift */,
 				96D5E1FB1C8E95B700DAD437 /* Info.plist */,
+				96D5E20A1C8E9BB900DAD437 /* PipeableTests.swift */,
 			);
 			path = PipelineTests;
 			sourceTree = "<group>";
@@ -198,6 +204,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				96D5E2051C8E95E400DAD437 /* Pipe.swift in Sources */,
+				96D5E2071C8E996800DAD437 /* Pipeable.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -205,7 +212,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				96D5E1FA1C8E95B700DAD437 /* PipelineTests.swift in Sources */,
+				96D5E1FA1C8E95B700DAD437 /* PipeTests.swift in Sources */,
+				96D5E20B1C8E9BB900DAD437 /* PipeableTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -383,6 +391,7 @@
 				96D5E2001C8E95B700DAD437 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		96D5E2011C8E95B700DAD437 /* Build configuration list for PBXNativeTarget "PipelineTests" */ = {
 			isa = XCConfigurationList;
@@ -391,6 +400,7 @@
 				96D5E2031C8E95B700DAD437 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

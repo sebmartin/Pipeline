@@ -1,6 +1,6 @@
 //
-//  PipelineTests.swift
-//  PipelineTests
+//  PipeTests.swift
+//  PipeTests
 //
 //  Created by Seb Martin on 2016-03-08.
 //  Copyright © 2016 Seb Martin. All rights reserved.
@@ -9,7 +9,7 @@
 import XCTest
 @testable import Pipeline
 
-class PipeLineTests: XCTestCase {
+class PipeTests: XCTestCase {
   func testPipeWithSameInputAndOutputHasDefaultInitializer() {
     let value = 1000
     var output: Int?
