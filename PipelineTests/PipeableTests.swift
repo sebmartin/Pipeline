@@ -102,6 +102,16 @@ class PipeableTests: XCTestCase {
     
     XCTAssertEqual(output, "custom 1")
   }
+  
+  func testPipeableCanBeAtTheEndOfPipeline() {
+    let custom1 = IntToIntCustomType()
+    let custom2 = CustomEndType()
+    let pipeline = custom1 |- custom2
+    
+    pipeline.insert(1)
+    
+    XCTAssertEqual(custom2.lastInput, 2)
+  }
 }
 
 extension PipeableTests {
@@ -124,6 +134,19 @@ extension PipeableTests {
     
     func pipe() -> Pipe<DefaultPipeInput, DefaultPipeOutput> {
       return defaultPipe
+    }
+  }
+  
+  private class CustomEndType: Pipeable {
+    typealias DefaultPipeInput = Int
+    typealias DefaultPipeOutput = Int
+    
+    var lastInput: DefaultPipeInput?
+    func pipe() -> Pipe<DefaultPipeInput, DefaultPipeOutput> {
+      return Pipe {
+        self.lastInput = $0
+        return $0
+      }
     }
   }
   
