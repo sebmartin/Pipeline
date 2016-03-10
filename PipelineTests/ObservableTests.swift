@@ -10,12 +10,13 @@ import XCTest
 @testable import Pipeline
 
 class ObservableTests: XCTestCase {
+  
   func testObservableCanConnectToInputable() {
-    var observable = Observable(100)
+    let observable = Observable(100)
     
     var callCount = 0
     var output: Int?
-    observable.connect(Drain {
+    observable.connect(Pipe {
       callCount += 1
       output = $0
     })
@@ -27,11 +28,11 @@ class ObservableTests: XCTestCase {
   }
   
   func testObservableCanConnectUsingOperator() {
-    var observable = Observable(100)
+    let observable = Observable(100)
     
     var callCount = 0
     var output: Int?
-    observable |- Drain {
+    observable |- Pipe {
       callCount += 1
       output = $0
     }
@@ -40,6 +41,29 @@ class ObservableTests: XCTestCase {
     
     XCTAssertEqual(output, 123)
     XCTAssertEqual(callCount, 1)
+  }
+  
+  func testObservableDoesNotInsertValueIfItDidNotChange() {
+    let observable = Observable(100)
+    
+    var callCount = 0
+    observable |- Pipe { (Int) in
+      callCount += 1
+    }
+    
+    observable.value = 123
+    XCTAssertEqual(callCount, 1)
+    
+    observable.value = 123
+    XCTAssertEqual(callCount, 1)
+  }
+  
+  func testInsertingValueInPipeUpdatesTheObservedValue() {
+    let observable = Observable(100)
+    let pipe = Pipe() |- observable
+    pipe.insert(111)
+    
+    XCTAssertEqual(observable.value, 111)
   }
 }
 

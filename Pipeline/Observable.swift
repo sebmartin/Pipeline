@@ -6,29 +6,35 @@
 //  Copyright © 2016 Seb Martin. All rights reserved.
 //
 
-struct Observable<T>: Outputable, Pipeable {
-  typealias Output = T
-  typealias DefaultPipeInput = T
-  typealias DefaultPipeOutput = T
+final public class Observable<T where T:Equatable>: Pipeable {
+  public typealias PipeInput = T?
+  public typealias PipeOutput = T?
   
-  internal let proxyPipe = Pipe<T,T>()
-
-  init(_ value: T) {
-    self.value = value
-  }
-  
-  var value: T {
+  private var previousValue: T?
+  var value: T? {
+    willSet (newValue) {
+      previousValue = value
+    }
     didSet {
-      proxyPipe.insert(value)
+      if previousValue != value {
+        pipe.insert(value)
+      }
+      previousValue = nil
     }
   }
   
-  mutating func connect<I: Inputable where I.Input == Output>(inputable: I) -> Observable<T> {
-    proxyPipe.connect(inputable)
-    return self
-  }
+  // MARK: - Pipeable
   
-  func pipe() -> Pipe<DefaultPipeInput, DefaultPipeOutput> {
-    return proxyPipe
+  public var pipe: Pipe<PipeInput, PipeOutput>
+  
+  public required init(_ value: T? = nil) {
+    // 💩 `pipe` needs to be initialized twice here otherwise the compiler will complain
+    // about `self` being referenced before it is initialized
+    self.pipe = Pipe<PipeInput, PipeOutput>()
+    self.pipe = Pipe { [weak self] (input:PipeInput) -> PipeOutput in
+      self?.value = input
+      return input
+    }
+    self.insert(value)
   }
 }

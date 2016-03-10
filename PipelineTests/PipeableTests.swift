@@ -10,34 +10,12 @@ import XCTest
 @testable import Pipeline
 
 class PipeableTests: XCTestCase {
-  func testPipeableIsPipedWithDefaultOutputWhenConnectedToDrain() {
-    let custom = IntToStringCustomType()
-    let pipe = Pipe(pipeable: custom, process: {return $0})
-    var output: String?
-    pipe.connect(Drain { output = $0 })
-    
-    custom.defaultPipe.insert(1)
-    
-    XCTAssertEqual(output, "custom 1")
-  }
   
   func testPipeableIsPipedWithDefaultOutputWhenConnectedToPipe() {
-    let custom = IntToStringCustomType()
-    let pipe = Pipe(pipeable: custom, process: {return $0})
+    let custom = IntToStringPipeable()
+
     var output: String?
-    pipe.connect(Pipe<String,Void> { output = $0 })
-    
-    custom.defaultPipe.insert(1)
-    
-    XCTAssertEqual(output, "custom 1")
-  }
-  
-  func testPipeableUsesDefaultOutputWhenPipedToDrainUsingOperator() {
-    let custom = IntToStringCustomType()
-    var output: String?
-    let pipeline = custom |- Drain {
-      output = $0
-    }
+    let pipeline = Pipe().connect(custom.connect(Pipe { output = $0 }))
     
     pipeline.insert(1)
     
@@ -45,11 +23,9 @@ class PipeableTests: XCTestCase {
   }
   
   func testPipeableUsesDefaultInputOutputWhenPipedToPipeUsingOperator() {
-    let custom = IntToStringCustomType()
+    let custom = IntToStringPipeable()
     var output: String?
-    let pipeline = custom |- Pipe<String,Void> {
-      output = $0
-    }
+    let pipeline = custom |- Pipe { output = $0 }
     
     pipeline.insert(1)
     
@@ -57,10 +33,10 @@ class PipeableTests: XCTestCase {
   }
   
   func testPipeablesCanBeChainedWithPipeableUsingOperator() {
-    let custom1 = IntToIntCustomType()
-    let custom2 = IntToIntCustomType()
+    let custom1 = IntToIntPipeable()
+    let custom2 = IntToIntPipeable()
     var output: Int?
-    let pipeline = custom1 |- custom2 |- Drain {
+    let pipeline = custom1 |- custom2 |- Pipe {
       output = $0
     }
     
@@ -70,33 +46,31 @@ class PipeableTests: XCTestCase {
   }
   
   func testConsecutivePipeablesCanBeConnectedToFormPipelineUsingOperator() {
-    let custom1 = IntToIntCustomType()
-    let custom2 = IntToIntCustomType()
+    let custom1 = IntToIntPipeable()
+    let custom2 = IntToIntPipeable()
     
     var output: Int?
-    let pipeline = Pipe<Int,Int>() |- custom1 |- custom2 |- Pipe<Int,Void> { output = $0 }
+    let pipeline = Pipe() |- custom1 |- custom2 |- Pipe { output = $0 }
     pipeline.insert(1)
     
     XCTAssertEqual(output, 3)
   }
   
   func testPipesAndPipeablesCanBeMixedToFormPipelineUsingOperator() {
-    let custom1 = IntToIntCustomType()
-    let custom2 = IntToIntCustomType()
+    let custom1 = IntToIntPipeable()
+    let custom2 = IntToIntPipeable()
     
     var output: Int?
-    let pipeline = Pipe<Int,Int>() |- custom1 |- Pipe() |- custom2 |- Pipe<Int,Void> { output = $0 }
+    let pipeline = Pipe() |- custom1 |- Pipe() |- custom2 |- Pipe { output = $0 }
     pipeline.insert(1)
     
     XCTAssertEqual(output, 3)
   }
   
   func testPipeableCanBeAtTheBeginningOfPipeline() {
-    let custom = IntToStringCustomType()
+    let custom = IntToStringPipeable()
     var output: String?
-    let pipeline = custom |- Drain {
-      output = $0
-    }
+    let pipeline = custom |- Pipe { output = $0 }
     
     pipeline.insert(1)
     
@@ -104,54 +78,43 @@ class PipeableTests: XCTestCase {
   }
   
   func testPipeableCanBeAtTheEndOfPipeline() {
-    let custom1 = IntToIntCustomType()
-    let custom2 = CustomEndType()
+    var output = nil as Int?
+    let custom1 = IntToIntPipeable()
+    let custom2 = CustomEndType { output = $0 }
     let pipeline = custom1 |- custom2
     
     pipeline.insert(1)
     
-    XCTAssertEqual(custom2.lastInput, 2)
+    XCTAssertEqual(output, 2)
   }
 }
+
+// MARK: - Custom Pipeables
 
 extension PipeableTests {
-  private struct IntToStringCustomType: Pipeable {
-    typealias DefaultPipeInput = Int
-    typealias DefaultPipeOutput = String
-    
-    let defaultPipe = Pipe<DefaultPipeInput, DefaultPipeOutput> { return "custom \($0)" }
-    
-    func pipe() -> Pipe<DefaultPipeInput, DefaultPipeOutput> {
-      return defaultPipe
-    }
+  private struct IntToStringPipeable: Pipeable {
+    typealias PipeInput = Int
+    typealias PipeOutput = String
+
+    let pipe = Pipe<PipeInput, PipeOutput> { return "custom \($0)" }
   }
   
-  private struct IntToIntCustomType: Pipeable {
-    typealias DefaultPipeInput = Int
-    typealias DefaultPipeOutput = Int
+  private struct IntToIntPipeable: Pipeable {
+    typealias PipeInput = Int
+    typealias PipeOutput = Int
     
-    let defaultPipe = Pipe<DefaultPipeInput, DefaultPipeOutput> { return $0 + 1 }
-    
-    func pipe() -> Pipe<DefaultPipeInput, DefaultPipeOutput> {
-      return defaultPipe
-    }
+    let pipe = Pipe<PipeInput, PipeOutput> { return $0 + 1 }
   }
   
-  private class CustomEndType: Pipeable {
-    typealias DefaultPipeInput = Int
-    typealias DefaultPipeOutput = Int
+  private struct CustomEndType: Pipeable {
+    typealias PipeInput = Int
+    typealias PipeOutput = Void
     
-    var lastInput: DefaultPipeInput?
-    func pipe() -> Pipe<DefaultPipeInput, DefaultPipeOutput> {
-      return Pipe {
-        self.lastInput = $0
-        return $0
-      }
+    let processor: ((PipeInput) -> PipeOutput)?
+    let pipe: Pipe<PipeInput, Void>
+    init(_ processor: (PipeInput) -> PipeOutput) {
+      self.processor = processor
+      self.pipe = Pipe(processor: processor)
     }
-  }
-  
-  private struct CustomTypeWithMultipleTypeFormats {
-    
   }
 }
-

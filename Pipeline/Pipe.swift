@@ -6,77 +6,86 @@
 //  Copyright © 2016 Seb Martin. All rights reserved.
 //
 
-// MARK: Protocols
+// MARK: - Protocols
 
 public protocol Inputable {
-  typealias Input
-  
-  func insert(input: Input)
+  typealias PipeInput
+
+  func insert(input: PipeInput)
 }
 
 public protocol Outputable {
-  typealias Output
+  typealias PipeOutput
   
-  mutating func connect<I: Inputable where I.Input == Output>(inputable: I) -> Self
+  mutating func connect<I: Inputable where I.PipeInput == PipeOutput>(inputable: I) -> Self
 }
 
 public protocol Processable {
-  typealias Input
-  typealias Output
-  init(process: (Input) -> Output)
+  typealias PipeInput
+  typealias PipeOutput
+  
+  var processor: (PipeInput) -> PipeOutput { get set }
+  init(processor: (PipeInput) -> PipeOutput)
 }
 
-extension Processable where Input == Output {
+extension Processable where PipeInput == PipeOutput {
+  // Default intializer iff input and output types match
   init() {
-    self.init { return $0 }
+    self.init(processor: { return $0 })
   }
 }
 
-// MARK: Pipe
+// MARK: - Pipe
 
-public class Pipe<X,Y>: Inputable, Outputable, Processable {
-  public typealias Input = X
-  public typealias Output = Y
+public typealias PipeType = protocol<Inputable, Outputable>
+
+public class Pipe<Input,Output>: Processable, PipeType {
+  public typealias PipeInput = Input
+  public typealias PipeOutput = Output
   
-  let process: (Input) -> Output
-  public required init(process: (Input) -> Output) {
-    self.process = process
+  // MARK: Processable
+  
+  public var processor: (PipeInput) -> PipeOutput
+  public required init(processor: (PipeInput) -> PipeOutput) {
+    self.processor = processor
   }
   
-  private var outputs = [CompatibleInputable<Output>]()
-  public func insert(input: Input) {
+  public func process(input: PipeInput) -> PipeOutput {
+    return processor(input)
+  }
+  
+  // MARK: Inputable
+  
+  public func insert(input: PipeInput) {
     let output = self.process(input)
     for outputable in self.outputs {
       outputable.insert(output)
     }
   }
   
-  public func connect<I : Inputable where I.Input == Output>(inputable: I) -> Self {
+  // MARK: Outputable
+  
+  private var outputs = [CompatibleInputable<Output>]()
+  public func connect<I : Inputable where I.PipeInput == PipeOutput>(inputable: I) -> Self {
     let inputableThunk = CompatibleInputable<Output>(inputable)
     self.outputs.append(inputableThunk)
     return self
   }
 }
 
-public class Drain<X>: Inputable {
-  public typealias Input = X
-  
-  let process: (Input) -> Void
-  public required init(process: (Input) -> Void) {
-    self.process = process
-  }
-  
-  public func insert(input: Input) {
-    self.process(input)
-  }
+// MARK: - Operator
+
+infix operator |- { associativity right precedence 100 }
+func |- <PL: PipeType, PR: PipeType where PL.PipeOutput == PR.PipeInput> (var left: PL, right: PR) -> PL {
+  return left.connect(right)
 }
 
-// MARK: Thunk for supporting Type Erasure on Inputable
+// MARK: - Thunk for supporting Type Erasure on Inputable
 
-private struct CompatibleInputable<Output>: Inputable {
+struct CompatibleInputable<Output>: Inputable {
   typealias CompatibleInput = Output
   
-  init<I: Inputable where I.Input == CompatibleInput>(_ inputable: I) {
+  init<I: Inputable where I.PipeInput == CompatibleInput>(_ inputable: I) {
     _insert = inputable.insert
   }
   

@@ -9,8 +9,8 @@
 import XCTest
 @testable import Pipeline
 
-class PipelineOperatorTests: XCTestCase {
-  func testPipelineOperatorOperatesInSeries() {
+class PipeableOperatorTests: XCTestCase {
+  func testPipeableOperatorOperatesInSeries() {
     var output1 = 0 as Int
     var output2 = 0 as Int
     var output3 = 0 as Int
@@ -32,9 +32,9 @@ class PipelineOperatorTests: XCTestCase {
     XCTAssertEqual(output3, 6)
   }
   
-  func testPipelineOperatorCanConnectPipeToDrain() {
+  func testPipeableOperatorCanConnectPipeToAnEndPipeWithNoReturn() {
     var output = 0
-    let p = Pipe() |- Drain {
+    let p = Pipe() |- Pipe {
       output = $0
     }
     
