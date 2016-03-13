@@ -62,6 +62,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		965CD46F1C952FAF0098920B /* Pipeables */ = {
+			isa = PBXGroup;
+			children = (
+				9632E7C01C911ABD004D5DF0 /* Observable.swift */,
+			);
+			path = Pipeables;
+			sourceTree = "<group>";
+		};
+		965CD4701C952FBF0098920B /* Pipeables */ = {
+			isa = PBXGroup;
+			children = (
+				9632E7C21C911EB3004D5DF0 /* ObservableTests.swift */,
+			);
+			path = Pipeables;
+			sourceTree = "<group>";
+		};
 		966AA4481C8EE9F400801482 /* Supported Files */ = {
 			isa = PBXGroup;
 			children = (
@@ -100,9 +116,9 @@
 		96D5E1EC1C8E95B700DAD437 /* Pipeline */ = {
 			isa = PBXGroup;
 			children = (
-				9632E7C01C911ABD004D5DF0 /* Observable.swift */,
 				96D5E2041C8E95E400DAD437 /* Pipe.swift */,
 				96D5E2061C8E996800DAD437 /* Pipeable.swift */,
+				965CD46F1C952FAF0098920B /* Pipeables */,
 				966AA4491C8EEA1400801482 /* Supported Files */,
 			);
 			path = Pipeline;
@@ -111,10 +127,10 @@
 		96D5E1F81C8E95B700DAD437 /* PipelineTests */ = {
 			isa = PBXGroup;
 			children = (
+				96D5E1F91C8E95B700DAD437 /* PipeTests.swift */,
 				96D5E20A1C8E9BB900DAD437 /* PipeableTests.swift */,
 				966AA4451C8EE9D000801482 /* PipeableOperatorTests.swift */,
-				96D5E1F91C8E95B700DAD437 /* PipeTests.swift */,
-				9632E7C21C911EB3004D5DF0 /* ObservableTests.swift */,
+				965CD4701C952FBF0098920B /* Pipeables */,
 				966AA4481C8EE9F400801482 /* Supported Files */,
 			);
 			path = PipelineTests;
