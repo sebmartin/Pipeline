@@ -9,22 +9,23 @@
 // MARK: - Protocols
 
 public protocol Inputable {
-  typealias PipeInput
+  associatedtype PipeInput
 
   func insert(input: PipeInput)
 }
 
 public protocol Outputable {
-  typealias PipeOutput
+  associatedtype PipeOutput
   
-  mutating func connect<I: Inputable where I.PipeInput == PipeOutput>(inputable: I) -> Self
+  func connect<I: Inputable where I.PipeInput == PipeOutput>(inputable: I) -> Self
 }
 
 public protocol Processable {
-  typealias PipeInput
-  typealias PipeOutput
   
-  var processor: (PipeInput) -> PipeOutput { get set }
+  associatedtype PipeInput
+  associatedtype PipeOutput
+  
+  var processor: (PipeInput) -> PipeOutput { get }
   init(processor: (PipeInput) -> PipeOutput)
 }
 
@@ -65,10 +66,61 @@ public class Pipe<Input,Output>: Processable, PipeType {
   
   // MARK: Outputable
   
-  private var outputs = [CompatibleInputable<Output>]()
+  private var outputs = [AnyInputable<Output>]()
   public func connect<I : Inputable where I.PipeInput == PipeOutput>(inputable: I) -> Self {
-    let inputableThunk = CompatibleInputable<Output>(inputable)
+    let inputableThunk = AnyInputable<Output>(inputable)
     self.outputs.append(inputableThunk)
+    return self
+  }
+}
+
+// MARK: - Thunks for Type Erasure on Inputable
+
+public struct AnyInputable<Input>: Inputable {
+  public typealias PipeInput = Input
+  
+  init<I: Inputable where I.PipeInput == Input>(_ inputable: I) {
+    _insert = inputable.insert
+  }
+  
+  private let _insert: (input: Input) -> Void
+  public func insert(input: Input) {
+    _insert(input: input)
+  }
+}
+
+public struct AnyOutputable<Output>: Outputable {
+  public typealias PipeOutput = Output
+  
+  init<_Outputable: Outputable where _Outputable.PipeOutput == Output>(_ outputable: _Outputable) {
+    _connect = { outputable.connect($0) }
+  }
+  
+  private var _connect: (inputable: AnyInputable<Output>) -> Void
+  public func connect<I : Inputable where I.PipeInput == Output>(inputable: I) -> AnyOutputable<Output> {
+    _connect(inputable: AnyInputable(inputable))
+    return self
+  }
+}
+
+public struct AnyPipe<Input, Output>: PipeType {
+  public typealias PipeInput = Input
+  public typealias PipeOutput = Output
+  
+  private let inputable: AnyInputable<Input>
+  private let outputable: AnyOutputable<Output>
+  
+  init<P: PipeType where P.PipeInput == Input, P.PipeOutput == Output>(_ pipe: P) {
+    inputable = AnyInputable(pipe)
+    outputable = AnyOutputable(pipe)
+  }
+  
+  public func insert(input: Input) {
+    inputable.insert(input)
+  }
+
+  public func connect<I: Inputable where I.PipeInput == Output>(inputable: I) -> AnyPipe<Input, Output> {
+    outputable.connect(AnyInputable(inputable))
     return self
   }
 }
@@ -76,21 +128,22 @@ public class Pipe<Input,Output>: Processable, PipeType {
 // MARK: - Operator
 
 infix operator |- { associativity right precedence 100 }
-func |- <PL: PipeType, PR: PipeType where PL.PipeOutput == PR.PipeInput> (var left: PL, right: PR) -> PL {
+func |- <Left: Outputable, Right: Inputable where Left.PipeOutput == Right.PipeInput>(left: Left, right: Right) -> Left {
   return left.connect(right)
 }
 
-// MARK: - Thunk for supporting Type Erasure on Inputable
+func |- <Left: PipeType, Right: Inputable where Left.PipeOutput == Right.PipeInput>(left: Left, right: Right) -> Left {
+  return left.connect(right)
+}
 
-struct CompatibleInputable<Output>: Inputable {
-  typealias CompatibleInput = Output
-  
-  init<I: Inputable where I.PipeInput == CompatibleInput>(_ inputable: I) {
-    _insert = inputable.insert
-  }
-  
-  private let _insert: (input: CompatibleInput) -> Void
-  func insert(input: CompatibleInput) {
-    _insert(input: input)
-  }
+func |- <X, Y, Z> (left: (X) -> Y, right: (Y) -> Z) -> AnyPipe<X, Y> {
+  return AnyPipe(Pipe(processor: left)) |- AnyInputable(Pipe(processor: right))
+}
+
+func |- <X, Y, Right: Inputable where Right.PipeInput == Y> (left: (X) -> Y, right: Right) -> AnyPipe<X, Y> {
+  return AnyPipe(Pipe(processor: left)) |- right
+}
+
+func |- <Y, Z, Left: Outputable where Left.PipeOutput == Y> (left: Left, right: (Y) -> Z) -> Left {
+  return left |- AnyInputable(Pipe(processor: right))
 }

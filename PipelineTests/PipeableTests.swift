@@ -24,7 +24,7 @@ class PipeableTests: XCTestCase {
   
   func testPipeableUsesDefaultInputOutputWhenPipedToPipeUsingOperator() {
     let custom = IntToStringPipeable()
-    var output: String?
+    var output = ""
     let pipeline = custom |- Pipe { output = $0 }
     
     pipeline.insert(1)
@@ -35,8 +35,8 @@ class PipeableTests: XCTestCase {
   func testPipeablesCanBeChainedWithPipeableUsingOperator() {
     let custom1 = IntToIntPipeable()
     let custom2 = IntToIntPipeable()
-    var output: Int?
-    let pipeline = custom1 |- custom2 |- Pipe {
+    var output = 0
+    let pipeline = custom1 |- custom2 |- Pipe() |- Pipe {
       output = $0
     }
     
@@ -49,7 +49,7 @@ class PipeableTests: XCTestCase {
     let custom1 = IntToIntPipeable()
     let custom2 = IntToIntPipeable()
     
-    var output: Int?
+    var output = 0
     let pipeline = Pipe() |- custom1 |- custom2 |- Pipe { output = $0 }
     pipeline.insert(1)
     
@@ -60,7 +60,7 @@ class PipeableTests: XCTestCase {
     let custom1 = IntToIntPipeable()
     let custom2 = IntToIntPipeable()
     
-    var output: Int?
+    var output = 0
     let pipeline = Pipe() |- custom1 |- Pipe() |- custom2 |- Pipe { output = $0 }
     pipeline.insert(1)
     
@@ -69,7 +69,7 @@ class PipeableTests: XCTestCase {
   
   func testPipeableCanBeAtTheBeginningOfPipeline() {
     let custom = IntToStringPipeable()
-    var output: String?
+    var output = ""
     let pipeline = custom |- Pipe { output = $0 }
     
     pipeline.insert(1)
@@ -78,7 +78,7 @@ class PipeableTests: XCTestCase {
   }
   
   func testPipeableCanBeAtTheEndOfPipeline() {
-    var output = nil as Int?
+    var output = 0
     let custom1 = IntToIntPipeable()
     let custom2 = CustomEndType { output = $0 }
     let pipeline = custom1 |- custom2
@@ -96,14 +96,14 @@ extension PipeableTests {
     typealias PipeInput = Int
     typealias PipeOutput = String
 
-    let pipe = Pipe<PipeInput, PipeOutput> { return "custom \($0)" }
+    var pipe = AnyPipe(Pipe<PipeInput, PipeOutput>(processor: { return "custom \($0)" }))
   }
   
   private struct IntToIntPipeable: Pipeable {
     typealias PipeInput = Int
     typealias PipeOutput = Int
     
-    let pipe = Pipe<PipeInput, PipeOutput> { return $0 + 1 }
+    var pipe = AnyPipe(Pipe<PipeInput, PipeOutput>(processor: { return $0 + 1 }))
   }
   
   private struct CustomEndType: Pipeable {
@@ -111,10 +111,10 @@ extension PipeableTests {
     typealias PipeOutput = Void
     
     let processor: ((PipeInput) -> PipeOutput)?
-    let pipe: Pipe<PipeInput, Void>
+    var pipe: AnyPipe<PipeInput, Void>
     init(_ processor: (PipeInput) -> PipeOutput) {
       self.processor = processor
-      self.pipe = Pipe(processor: processor)
+      self.pipe = AnyPipe(Pipe(processor: processor))
     }
   }
 }

@@ -6,12 +6,84 @@
 	<dict>
 		<key>Pipeline.xcscheme</key>
 		<dict>
+			<key>isShown</key>
+			<true/>
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>96A7B0771C965D7E004F312A</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>96A7B08A1C965D7E004F312A</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>96A7B0951C965D7E004F312A</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>96A7B0AD1C965DDE004F312A</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>96A7B0C01C965DDE004F312A</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>96A7B0CB1C965DDE004F312A</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>96A7B0DF1C965DFE004F312A</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>96A7B0F21C965DFF004F312A</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>96A7B0FD1C965DFF004F312A</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>96A7B1121C965E31004F312A</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>96A7B11B1C965E31004F312A</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>96A7B12F1C966040004F312A</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>96A7B1421C966040004F312A</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>96A7B14D1C966040004F312A</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>96D5E1E91C8E95B700DAD437</key>
 		<dict>
 			<key>primary</key>

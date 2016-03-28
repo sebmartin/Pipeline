@@ -68,7 +68,7 @@ class PipeTests: XCTestCase {
   
   func testPipesCanUseOperator() {
     var output: String?
-    let pipeline = Pipe() |- Pipe { output = $0 }
+    let pipeline = Pipe() |- { output = $0 }
     
     pipeline.insert("test")
     
@@ -76,8 +76,8 @@ class PipeTests: XCTestCase {
   }
   
   func testConsecutivePipesCanBeConnectedToFormPipeline() {
-    var output: Int?
-    let pipeline = Pipe { return $0 + 1 } |- Pipe { return $0 + 2 } |- Pipe { output = $0 }
+    var output = 0
+    let pipeline = { return $0 + 1 } |- { return $0 + 2 } |- { output = $0 }
     
     pipeline.insert(1)
     
@@ -87,14 +87,23 @@ class PipeTests: XCTestCase {
   func testPipesCanSplitToParrallelPipesUsingOperator() {
     // 1 -> Pipe(+1) -> Pipe(+2) -> 4
     //            \---> Pipe(+3) -> 5
-    var output1: Int?, output2: Int?
+    var output1 = 0, output2 = 0
     let pipeline = Pipe { return $0 + 1 }
-    pipeline |- Pipe { return $0 + 2 } |- Pipe { output1 = $0 }
-    pipeline |- Pipe { return $0 + 3 } |- Pipe { output2 = $0 }
+    pipeline |- { return $0 + 2 } |- { output1 = $0 }
+    pipeline |- { return $0 + 3 } |- { output2 = $0 }
     
     pipeline.insert(1)
     
     XCTAssertEqual(output1, 4)
     XCTAssertEqual(output2, 5)
+  }
+  
+  func testPipesCanBeConnectedUsingTheInitializer() {
+    var output = 0
+    let pipeline = Pipe { return $0 + 1 } |- Pipe { return $0 + 2 } |- Pipe { output = $0 }
+    
+    pipeline.insert(1)
+    
+    XCTAssertEqual(output, 4)
   }
 }

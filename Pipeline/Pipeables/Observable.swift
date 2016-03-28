@@ -7,11 +7,11 @@
 //
 
 final public class Observable<T where T:Equatable>: Pipeable {
-  public typealias PipeInput = T?
-  public typealias PipeOutput = T?
+  public typealias PipeInput = T
+  public typealias PipeOutput = T
   
   private var previousValue: T?
-  var value: T? {
+  var value: T {
     willSet (newValue) {
       previousValue = value
     }
@@ -24,17 +24,24 @@ final public class Observable<T where T:Equatable>: Pipeable {
   }
   
   // MARK: - Pipeable
+  public var processor: (PipeInput) -> PipeOutput
+  public var pipe: AnyPipe<PipeInput, PipeOutput>
   
-  public var pipe: Pipe<PipeInput, PipeOutput>
-  
-  public required init(_ value: T? = nil) {
+  public init(_ value: T) {
+    self.value = value
+    self.processor = { return $0 }
+    
     // 💩 `pipe` needs to be initialized twice here otherwise the compiler will complain
     // about `self` being referenced before it is initialized
-    self.pipe = Pipe<PipeInput, PipeOutput>()
-    self.pipe = Pipe { [weak self] (input:PipeInput) -> PipeOutput in
+    var pipe = Pipe<PipeInput, PipeOutput>()
+    self.pipe = AnyPipe(pipe)
+    
+    pipe = Pipe { [weak self] (input:PipeInput) -> PipeOutput in
       self?.value = input
       return input
     }
+    self.pipe = AnyPipe(pipe)
+    
     self.insert(value)
   }
 }
