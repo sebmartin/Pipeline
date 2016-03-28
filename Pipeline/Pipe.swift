@@ -31,7 +31,7 @@ public protocol Processable {
 
 extension Processable where PipeInput == PipeOutput {
   // Default intializer iff input and output types match
-  init() {
+  public init() {
     self.init(processor: { return $0 })
   }
 }
@@ -79,7 +79,7 @@ public class Pipe<Input,Output>: Processable, PipeType {
 public struct AnyInputable<Input>: Inputable {
   public typealias PipeInput = Input
   
-  init<I: Inputable where I.PipeInput == Input>(_ inputable: I) {
+  public init<I: Inputable where I.PipeInput == Input>(_ inputable: I) {
     _insert = inputable.insert
   }
   
@@ -92,7 +92,7 @@ public struct AnyInputable<Input>: Inputable {
 public struct AnyOutputable<Output>: Outputable {
   public typealias PipeOutput = Output
   
-  init<_Outputable: Outputable where _Outputable.PipeOutput == Output>(_ outputable: _Outputable) {
+  public init<_Outputable: Outputable where _Outputable.PipeOutput == Output>(_ outputable: _Outputable) {
     _connect = { outputable.connect($0) }
   }
   
@@ -110,7 +110,7 @@ public struct AnyPipe<Input, Output>: PipeType {
   private let inputable: AnyInputable<Input>
   private let outputable: AnyOutputable<Output>
   
-  init<P: PipeType where P.PipeInput == Input, P.PipeOutput == Output>(_ pipe: P) {
+  public init<P: PipeType where P.PipeInput == Input, P.PipeOutput == Output>(_ pipe: P) {
     inputable = AnyInputable(pipe)
     outputable = AnyOutputable(pipe)
   }
@@ -128,22 +128,22 @@ public struct AnyPipe<Input, Output>: PipeType {
 // MARK: - Operator
 
 infix operator |- { associativity right precedence 100 }
-func |- <Left: Outputable, Right: Inputable where Left.PipeOutput == Right.PipeInput>(left: Left, right: Right) -> Left {
+public func |- <Left: Outputable, Right: Inputable where Left.PipeOutput == Right.PipeInput>(left: Left, right: Right) -> Left {
   return left.connect(right)
 }
 
-func |- <Left: PipeType, Right: Inputable where Left.PipeOutput == Right.PipeInput>(left: Left, right: Right) -> Left {
+public func |- <Left: PipeType, Right: Inputable where Left.PipeOutput == Right.PipeInput>(left: Left, right: Right) -> Left {
   return left.connect(right)
 }
 
-func |- <X, Y, Z> (left: (X) -> Y, right: (Y) -> Z) -> AnyPipe<X, Y> {
+public func |- <X, Y, Z> (left: (X) -> Y, right: (Y) -> Z) -> AnyPipe<X, Y> {
   return AnyPipe(Pipe(processor: left)) |- AnyInputable(Pipe(processor: right))
 }
 
-func |- <X, Y, Right: Inputable where Right.PipeInput == Y> (left: (X) -> Y, right: Right) -> AnyPipe<X, Y> {
+public func |- <X, Y, Right: Inputable where Right.PipeInput == Y> (left: (X) -> Y, right: Right) -> AnyPipe<X, Y> {
   return AnyPipe(Pipe(processor: left)) |- right
 }
 
-func |- <Y, Z, Left: Outputable where Left.PipeOutput == Y> (left: Left, right: (Y) -> Z) -> Left {
+public func |- <Y, Z, Left: Outputable where Left.PipeOutput == Y> (left: Left, right: (Y) -> Z) -> Left {
   return left |- AnyInputable(Pipe(processor: right))
 }

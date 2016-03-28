@@ -11,7 +11,7 @@ final public class Observable<T where T:Equatable>: Pipeable {
   public typealias PipeOutput = T
   
   private var previousValue: T?
-  var value: T {
+  public var value: T {
     willSet (newValue) {
       previousValue = value
     }

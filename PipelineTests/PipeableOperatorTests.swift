@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import Pipeline
+import Pipeline
 
 class PipeableOperatorTests: XCTestCase {
   func testPipeableOperatorOperatesInSeries() {

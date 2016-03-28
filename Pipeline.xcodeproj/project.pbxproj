@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		9632E7C11C911ABD004D5DF0 /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9632E7C01C911ABD004D5DF0 /* Observable.swift */; };
 		9632E7C31C911EB3004D5DF0 /* ObservableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9632E7C21C911EB3004D5DF0 /* ObservableTests.swift */; };
+		965CD4691C93D2F80098920B /* Pipeable+UIControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 965CD4681C93D2F80098920B /* Pipeable+UIControl.swift */; };
+		965CD46B1C93D3210098920B /* Pipeable+UIControlTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 965CD46A1C93D3210098920B /* Pipeable+UIControlTests.swift */; };
 		966AA4461C8EE9D000801482 /* PipeableOperatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 966AA4451C8EE9D000801482 /* PipeableOperatorTests.swift */; };
 		969747711CA8CDDF0026C884 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 969747701CA8CDDF0026C884 /* AppDelegate.swift */; };
 		96D5E1EE1C8E95B700DAD437 /* Pipeline.h in Headers */ = {isa = PBXBuildFile; fileRef = 96D5E1ED1C8E95B700DAD437 /* Pipeline.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -39,6 +41,8 @@
 /* Begin PBXFileReference section */
 		9632E7C01C911ABD004D5DF0 /* Observable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Observable.swift; sourceTree = "<group>"; };
 		9632E7C21C911EB3004D5DF0 /* ObservableTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObservableTests.swift; sourceTree = "<group>"; };
+		965CD4681C93D2F80098920B /* Pipeable+UIControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Pipeable+UIControl.swift"; sourceTree = "<group>"; };
+		965CD46A1C93D3210098920B /* Pipeable+UIControlTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Pipeable+UIControlTests.swift"; sourceTree = "<group>"; };
 		966AA4451C8EE9D000801482 /* PipeableOperatorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PipeableOperatorTests.swift; sourceTree = "<group>"; };
 		9697476E1CA8CDDF0026C884 /* TestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		969747701CA8CDDF0026C884 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -83,6 +87,7 @@
 		965CD46F1C952FAF0098920B /* Pipeables */ = {
 			isa = PBXGroup;
 			children = (
+				965CD4681C93D2F80098920B /* Pipeable+UIControl.swift */,
 				9632E7C01C911ABD004D5DF0 /* Observable.swift */,
 			);
 			path = Pipeables;
@@ -91,6 +96,7 @@
 		965CD4701C952FBF0098920B /* Pipeables */ = {
 			isa = PBXGroup;
 			children = (
+				965CD46A1C93D3210098920B /* Pipeable+UIControlTests.swift */,
 				9632E7C21C911EB3004D5DF0 /* ObservableTests.swift */,
 			);
 			path = Pipeables;
@@ -315,6 +321,7 @@
 				96D5E2051C8E95E400DAD437 /* Pipe.swift in Sources */,
 				9632E7C11C911ABD004D5DF0 /* Observable.swift in Sources */,
 				96D5E2071C8E996800DAD437 /* Pipeable.swift in Sources */,
+				965CD4691C93D2F80098920B /* Pipeable+UIControl.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -322,6 +329,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				965CD46B1C93D3210098920B /* Pipeable+UIControlTests.swift in Sources */,
 				9632E7C31C911EB3004D5DF0 /* ObservableTests.swift in Sources */,
 				96D5E1FA1C8E95B700DAD437 /* PipeTests.swift in Sources */,
 				966AA4461C8EE9D000801482 /* PipeableOperatorTests.swift in Sources */,
