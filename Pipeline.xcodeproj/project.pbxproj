@@ -13,6 +13,7 @@
 		965CD46B1C93D3210098920B /* Pipeable+UIControlTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 965CD46A1C93D3210098920B /* Pipeable+UIControlTests.swift */; };
 		966AA4461C8EE9D000801482 /* PipeableOperatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 966AA4451C8EE9D000801482 /* PipeableOperatorTests.swift */; };
 		969747711CA8CDDF0026C884 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 969747701CA8CDDF0026C884 /* AppDelegate.swift */; };
+		96CA3DAC1CAAEA2F00C30912 /* FormElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96CA3DAB1CAAEA2F00C30912 /* FormElement.swift */; };
 		96D5E1EE1C8E95B700DAD437 /* Pipeline.h in Headers */ = {isa = PBXBuildFile; fileRef = 96D5E1ED1C8E95B700DAD437 /* Pipeline.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		96D5E1F51C8E95B700DAD437 /* Pipeline.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96D5E1EA1C8E95B700DAD437 /* Pipeline.framework */; };
 		96D5E1FA1C8E95B700DAD437 /* PipeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96D5E1F91C8E95B700DAD437 /* PipeTests.swift */; };
@@ -47,6 +48,7 @@
 		9697476E1CA8CDDF0026C884 /* TestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		969747701CA8CDDF0026C884 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9697477C1CA8CDDF0026C884 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		96CA3DAB1CAAEA2F00C30912 /* FormElement.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormElement.swift; sourceTree = "<group>"; };
 		96D5E1EA1C8E95B700DAD437 /* Pipeline.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pipeline.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		96D5E1ED1C8E95B700DAD437 /* Pipeline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Pipeline.h; sourceTree = "<group>"; };
 		96D5E1EF1C8E95B700DAD437 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -128,6 +130,14 @@
 			path = TestApp;
 			sourceTree = "<group>";
 		};
+		96CA3DAA1CAAEA1000C30912 /* Forms */ = {
+			isa = PBXGroup;
+			children = (
+				96CA3DAB1CAAEA2F00C30912 /* FormElement.swift */,
+			);
+			path = Forms;
+			sourceTree = "<group>";
+		};
 		96D5E1E01C8E95B700DAD437 = {
 			isa = PBXGroup;
 			children = (
@@ -151,6 +161,7 @@
 		96D5E1EC1C8E95B700DAD437 /* Pipeline */ = {
 			isa = PBXGroup;
 			children = (
+				96CA3DAA1CAAEA1000C30912 /* Forms */,
 				96D5E2041C8E95E400DAD437 /* Pipe.swift */,
 				96D5E2061C8E996800DAD437 /* Pipeable.swift */,
 				965CD46F1C952FAF0098920B /* Pipeables */,
@@ -319,6 +330,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				96D5E2051C8E95E400DAD437 /* Pipe.swift in Sources */,
+				96CA3DAC1CAAEA2F00C30912 /* FormElement.swift in Sources */,
 				9632E7C11C911ABD004D5DF0 /* Observable.swift in Sources */,
 				96D5E2071C8E996800DAD437 /* Pipeable.swift in Sources */,
 				965CD4691C93D2F80098920B /* Pipeable+UIControl.swift in Sources */,

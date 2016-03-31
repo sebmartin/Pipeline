@@ -76,7 +76,7 @@ public class Pipe<Input,Output>: Processable, PipeType {
 
 // MARK: - Thunks for Type Erasure on Inputable
 
-public struct AnyInputable<Input>: Inputable {
+public class AnyInputable<Input>: Inputable {
   public typealias PipeInput = Input
   
   public init<I: Inputable where I.PipeInput == Input>(_ inputable: I) {
@@ -89,7 +89,7 @@ public struct AnyInputable<Input>: Inputable {
   }
 }
 
-public struct AnyOutputable<Output>: Outputable {
+public class AnyOutputable<Output>: Outputable {
   public typealias PipeOutput = Output
   
   public init<_Outputable: Outputable where _Outputable.PipeOutput == Output>(_ outputable: _Outputable) {
@@ -97,7 +97,7 @@ public struct AnyOutputable<Output>: Outputable {
   }
   
   private var _connect: (inputable: AnyInputable<Output>) -> Void
-  public func connect<I : Inputable where I.PipeInput == Output>(inputable: I) -> AnyOutputable<Output> {
+  public func connect<I : Inputable where I.PipeInput == Output>(inputable: I) -> Self {
     _connect(inputable: AnyInputable(inputable))
     return self
   }
@@ -107,20 +107,29 @@ public struct AnyPipe<Input, Output>: PipeType {
   public typealias PipeInput = Input
   public typealias PipeOutput = Output
   
-  private let inputable: AnyInputable<Input>
-  private let outputable: AnyOutputable<Output>
+  private let inputable: AnyInputable<Input>?
+  private weak var weakInputable: AnyInputable<Input>? = nil
+  private let outputable: AnyOutputable<Output>?
+  private weak var weakOutputable: AnyOutputable<Output>? = nil
   
-  public init<P: PipeType where P.PipeInput == Input, P.PipeOutput == Output>(_ pipe: P) {
-    inputable = AnyInputable(pipe)
-    outputable = AnyOutputable(pipe)
+  public init<P: PipeType where P.PipeInput == Input, P.PipeOutput == Output>(_ pipe: P, weak: Bool = false) {
+    if weak {
+      weakInputable = AnyInputable(pipe)
+      weakOutputable = AnyOutputable(pipe)
+      inputable = nil
+      outputable = nil
+    } else {
+      inputable = AnyInputable(pipe)
+      outputable = AnyOutputable(pipe)
+    }
   }
   
   public func insert(input: Input) {
-    inputable.insert(input)
+    (inputable ?? weakInputable)?.insert(input)
   }
 
   public func connect<I: Inputable where I.PipeInput == Output>(inputable: I) -> AnyPipe<Input, Output> {
-    outputable.connect(AnyInputable(inputable))
+    (outputable ?? weakOutputable)?.connect(AnyInputable(inputable))
     return self
   }
 }

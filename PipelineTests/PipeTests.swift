@@ -106,4 +106,31 @@ class PipeTests: XCTestCase {
     
     XCTAssertEqual(output, 4)
   }
+  
+  func testStrongAnyPipeRetainsPipe() {
+    var output = 0
+    let pipeline = Pipe { return $0 + 1 } |- AnyPipe(Pipe { output = $0 }, weak: false)
+    
+    pipeline.insert(1)
+    
+    XCTAssertEqual(output, 2)
+  }
+  
+  func testAnyPipeDefaultsToStrong() {
+    var output = 0
+    let pipeline = Pipe { return $0 + 1 } |- AnyPipe(Pipe { output = $0 })
+    
+    pipeline.insert(1)
+    
+    XCTAssertEqual(output, 2)
+  }
+  
+  func testWeakAnyPipeDoesNotRetainPipe() {
+    var output = 0
+    let pipeline = Pipe { return $0 + 1 } |- AnyPipe(Pipe { output = $0 }, weak: true)
+    
+    pipeline.insert(1)
+    
+    XCTAssertEqual(output, 0)
+  }
 }
