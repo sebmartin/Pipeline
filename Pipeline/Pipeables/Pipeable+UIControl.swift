@@ -12,12 +12,9 @@ final public class ControlPipe<Control where Control:ControlType, Control:UICont
 
   private let control: Control
   public var pipe: AnyPipe<PipeInput, PipeOutput>
-  public var processor: (PipeInput) -> PipeOutput
-  public var process = { (input: PipeInput) -> PipeOutput in return input }
   private let target = Target<Control>()
   
   public required init(_ control: Control, events: UIControlEvents=UIControlEvents.ValueChanged) {
-    self.processor = { return $0 }
     self.control = control
     let pipe = Pipe {
       // Update the control on pipe input, but only if it's different to avoid echo
