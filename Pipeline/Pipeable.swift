@@ -18,8 +18,7 @@ extension Pipeable {
     pipe.insert(input)
   }
   
-  public func connect<I : Inputable where I.PipeInput == PipeOutput>(inputable: I) -> Self {
+  public func connect<I : Inputable where I.PipeInput == PipeOutput>(inputable: I) {
     pipe.connect(inputable)
-    return self
   }
 }

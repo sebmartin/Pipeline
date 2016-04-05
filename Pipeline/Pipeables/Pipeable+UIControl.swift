@@ -42,13 +42,12 @@ public class Target<Control where Control:ControlType, Control:UIControl, Contro
 
 // MARK: - Operator
 
-public func |- <C: ControlType, I: Inputable where C: UIControl, I.PipeInput == C.ControlValueType> (left: C, right: I) -> AnyPipe<C.ControlValueType, C.ControlValueType> {
-  return AnyPipe(ControlPipe(left)) |- right
+public func |- <C: ControlType, P: PipeType where C: UIControl, P.PipeInput == C.ControlValueType> (left: C, right: P) -> AnyPipe<C.ControlValueType, P.PipeOutput> {
+  return ControlPipe(left) |- right
 }
 
-public func |- <O: Outputable, C: ControlType where C: UIControl, O.PipeOutput == C.ControlValueType> (left: O, right: C) -> O {
-  left.connect(ControlPipe(right))
-  return left
+public func |- <P: PipeType, C: ControlType where C: UIControl, P.PipeOutput == C.ControlValueType> (left: P, right: C) -> AnyPipe<P.PipeInput, C.ControlValueType> {
+  return left.fuse(ControlPipe(right))
 }
 
 // MARK: - Control Type Definition

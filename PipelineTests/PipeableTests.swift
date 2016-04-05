@@ -11,11 +11,11 @@ import Pipeline
 
 class PipeableTests: XCTestCase {
   
-  func testPipeableIsPipedWithDefaultOutputWhenConnectedToPipe() {
+  func testPipeableIsPipedWithDefaultOutputWhenFusedToPipe() {
     let custom = IntToStringPipeable()
 
     var output: String?
-    let pipeline = Pipe().connect(custom.connect(Pipe { output = $0 }))
+    let pipeline = Pipe().fuse(custom.fuse(Pipe { output = $0 }))
     
     pipeline.insert(1)
     

@@ -24,42 +24,75 @@ class PipeTests: XCTestCase {
     XCTAssertEqual(output, value)
   }
   
-  func testPipeConnectIsChainableInSequence() {
+  func testConnectedPipesReceiveInput() {
+    var output: String?
+    let pipe1 = Pipe { $0 + 1 }
+    let pipe2 = Pipe { $0 + 2 }
+    let pipe3 = Pipe { (input: Int) -> String in
+      output = "test \(input)"
+      return output!
+    }
+    pipe1.connect(pipe2)
+    pipe2.connect(pipe3)
+    
+    pipe1.insert(1)
+
+    XCTAssertEqual(output, "test 4")
+  }
+  
+  func testFusedPipesReceiveInput() {
     var output: String?
     let pipe = Pipe {
       return $0 + 1
-      }.connect(Pipe<Int,Int> {
+      }.fuse(Pipe<Int,Int> {
         return $0 + 2
-        }.connect(Pipe<Int, String> {
+        }.fuse(Pipe<Int, String> {
           output = "test \($0)"
           return output!
         }))
-    
+
     pipe.insert(1)
-    
+
     XCTAssertEqual(output, "test 4")
   }
   
   func testPipeConnectIsParrallellizable() {
-    var output = "test"
-    let pipe = Pipe()
-      .connect(Pipe<Int,String> {
-        output = "\(output) \($0 + 2)"
-        return output
+    var output1 = "test"
+    var output2 = "test"
+    let pipe = Pipe<Int,Int>()
+    pipe.connect(Pipe<Int,Void> {
+      output1 = "\(output1) \($0 + 2)"
+    })
+    pipe.connect(Pipe<Int,Void> {
+      output2 = "\(output2) \($0 + 3)"
+    })
+    
+    pipe.insert(1)
+    
+    XCTAssertEqual(output1, "test 3")
+    XCTAssertEqual(output2, "test 4")
+  }
+  
+  func testPipeFuseIsParrallellizable() {
+    var output1 = "test"
+    var output2 = "test"
+    let pipe = Pipe<Int,Int>()
+    pipe.fuse(Pipe<Int,Void> {
+        output1 = "\(output1) \($0 + 2)"
       })
-      .connect(Pipe<Int,String> {
-        output = "\(output) \($0 + 3)"
-        return output
+    pipe.fuse(Pipe<Int,Void> {
+        output2 = "\(output2) \($0 + 3)"
       })
     
     pipe.insert(1)
     
-    XCTAssertEqual(output, "test 3 4")
+    XCTAssertEqual(output1, "test 3")
+    XCTAssertEqual(output2, "test 4")
   }
   
   func testPipeCanTerminateWithAnEndPipe() {
     var output: String?
-    let pipe = Pipe().connect(Pipe { output = $0 })
+    let pipe = Pipe().fuse(Pipe { output = $0 })
     
     pipe.insert("test")
     
