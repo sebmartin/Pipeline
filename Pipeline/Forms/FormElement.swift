@@ -6,30 +6,84 @@
 //  Copyright © 2016 Seb Martin. All rights reserved.
 //
 
-struct FormElement<X: Equatable, Y:UIControl where Y:ControlType> {
-  var dataPipe: Observable<X>
-  var controlPipe = nil as ControlPipe<Y>?
-  var controlProxyPipe = Pipe<Y.ControlValueType,Y.ControlValueType>()
+struct AnyValidatorType<ValueType>: ValidatorType {
   
-  init(value: X, connect: (dataPipe: AnyPipe<X,X>, controlPipe: AnyPipe<Y.ControlValueType,Y.ControlValueType>) -> Void ) {
-    dataPipe = Observable(value)
-    connect(dataPipe: AnyPipe(dataPipe, weak: true), controlPipe: AnyPipe(controlProxyPipe, weak: false))
+  init<V: ValidatorType where V.ValueType == ValueType>(_ validator: V) {
+    _pipe = { return validator.pipe }
+    _isValid = { return validator.isValid }
+  }
+  
+  private let _pipe: () -> AnyPipe<ValueType, ValueType>
+  var pipe: AnyPipe<ValueType, ValueType> { 
+    return _pipe()
+  }
+  
+  private let _isValid: () -> AnyPipe<ValueType, Bool>
+  var isValid: AnyPipe<ValueType, Bool> {
+    return _isValid()
+  }
+}
+
+protocol ValidatorType: Pipeable {
+  associatedtype ValueType
+  associatedtype PipeInput = ValueType
+  associatedtype PipeOutput = ValueType
+  
+  var pipe: AnyPipe<ValueType, ValueType> { get }
+  var isValid: AnyPipe<ValueType, Bool> { get }
+}
+
+struct Validator<ValueType>: ValidatorType {
+  var pipe: AnyPipe<ValueType, ValueType>
+  var isValid: AnyPipe<ValueType, Bool>
+  
+  init(validate: (value: ValueType) -> Bool) {
+    let outputValue = AnyPipe(Pipe<ValueType, ValueType>())
+    let outputIsValid = Observable(true)
+    let input = Pipe {
+      (input: ValueType) in
+      if validate(value: input) {
+        outputValue.insert(input)
+        outputIsValid.insert(true)
+      } else {
+        outputIsValid.insert(false)
+      }
+    }
+    self.pipe = AnyPipe(input: input, output: outputValue)
+    self.isValid = AnyPipe(input: input, output: outputIsValid)
+  }
+}
+
+struct FormElement<X: Equatable, Y:UIControl where Y:ControlType> {
+  var valuePipe: Observable<X>
+  var viewPipe: ControlPipe<Y>
+  var isValidPipe = Observable(true)
+  
+  typealias SetupFunction = (value: AnyPipe<X,X>, view: AnyPipe<Y.ControlValueType,Y.ControlValueType>, isValid: AnyPipe<Bool, Bool>) -> Void
+  
+  init(value: X, view: Y, setup: SetupFunction) {
+    valuePipe = Observable(value)
+    viewPipe = ControlPipe(view)
+    setup(value: AnyPipe(valuePipe, weak: true), view: AnyPipe(viewPipe, weak: false), isValid: AnyPipe(isValidPipe))
   }
   
   var value: X {
     get {
-      return dataPipe.value
+      return valuePipe.value
     }
     set(value) {
-      dataPipe.value = value
+      valuePipe.value = value
     }
   }
-  
-  mutating func bindTo(control: Y) {
-    let controlPipe = ControlPipe(control)
-    controlProxyPipe.connect(AnyPipe(controlPipe, weak: true))
-    controlPipe.connect(controlProxyPipe)
-    self.controlPipe = controlPipe
+}
+
+extension FormElement where X == Y.ControlValueType {
+  init (value: X, view: Y) {
+    self.init(value: value, view: view) {
+      (value, view, isValid) in
+      value |- view
+      view |- value
+    }
   }
 }
 
@@ -49,14 +103,12 @@ struct ViewModel {
   var text: FormElement<String, UITextField>
   var number: FormElement<Int, UITextField>
   
-  init(model: Model) {
-    text = FormElement(value: model.text) {
-      $0 |- $1
-      $1 |- $0
-    }
-    number = FormElement(value: model.number) { (data, control) in
-      control |- { (input: String) in return 0 } |- data
-      data |- { return "\($0)" } |- control
+  init(model: Model, view: CustomView) {
+    text = FormElement(value: model.text, view: view.textField)
+    number = FormElement(value: model.number, view: view.numberField) {
+      (value, view, isValid) in
+      value |- { "\($0)" } |- view
+      view |- { Int($0) ?? 0 } |- value
     }
   }
 
@@ -67,11 +119,6 @@ struct ViewModel {
         number: number.value
       )
     }
-  }
-  
-  mutating func bindTo(view: CustomView) {
-    text.bindTo(view.textField)
-    text.bindTo(view.numberField)
   }
 }
 

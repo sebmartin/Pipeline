@@ -7,10 +7,7 @@
 //
 
 public protocol Pipeable: PipeType {
-  associatedtype PipeInput
-  associatedtype PipeOutput
-  
-  var pipe: AnyPipe<PipeInput, PipeOutput> { get set }
+  var pipe: AnyPipe<PipeInput, PipeOutput> { get }
 }
 
 extension Pipeable {
