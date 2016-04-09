@@ -8,20 +8,20 @@
 
 // MARK: - Protocols
 
-public protocol Inputable {
+public protocol Inputable: class {
   associatedtype PipeInput
 
   func insert(input: PipeInput)
 }
 
-public protocol Outputable {
+public protocol Outputable: class {
   associatedtype PipeOutput
   
+  var outputs: [AnyInputable<PipeOutput>] { get }
   func connect<I: Inputable where I.PipeInput == PipeOutput>(inputable: I)
 }
 
 public protocol Processable {
-  
   associatedtype PipeInput
   associatedtype PipeOutput
   
@@ -75,7 +75,7 @@ public class Pipe<Input,Output>: Processable, PipeType {
   
   // MARK: Outputable
   
-  private var outputs = [AnyInputable<Output>]()
+  public var outputs = [AnyInputable<PipeOutput>]()
   public func connect<I : Inputable where I.PipeInput == PipeOutput>(inputable: I) {
     let inputableThunk = AnyInputable<Output>(inputable)
     self.outputs.append(inputableThunk)
@@ -87,8 +87,13 @@ public class Pipe<Input,Output>: Processable, PipeType {
 public class AnyInputable<Input>: Inputable {
   public typealias PipeInput = Input
   
-  public init<I: Inputable where I.PipeInput == Input>(_ inputable: I) {
-    _insert = inputable.insert
+  public init<I: Inputable where I.PipeInput == Input>(_ inputable: I, weak: Bool = false) {
+    weak var weakInputable = inputable
+    if weak {
+      _insert = { weakInputable?.insert($0) }
+    } else {
+      _insert = { inputable.insert($0) }
+    }
   }
   
   private let _insert: (input: Input) -> Void
@@ -100,8 +105,22 @@ public class AnyInputable<Input>: Inputable {
 public class AnyOutputable<Output>: Outputable {
   public typealias PipeOutput = Output
   
-  public init<_Outputable: Outputable where _Outputable.PipeOutput == Output>(_ outputable: _Outputable) {
-    _connect = outputable.connect
+  public init<_Outputable: Outputable where _Outputable.PipeOutput == Output>(_ outputable: _Outputable, weak: Bool = false) {
+    weak var weakOutputable = outputable
+    if weak {
+      _outputs = { weakOutputable?.outputs ?? [] }
+      _connect = { weakOutputable?.connect($0) }
+    } else {
+      _outputs = { outputable.outputs }
+      _connect = { outputable.connect($0) }
+    }
+  }
+  
+  private var _outputs: () -> [AnyInputable<PipeOutput>]
+  public var outputs: [AnyInputable<PipeOutput>] {
+    get {
+      return _outputs()
+    }
   }
   
   private var _connect: (inputable: AnyInputable<Output>) -> Void
@@ -110,41 +129,36 @@ public class AnyOutputable<Output>: Outputable {
   }
 }
 
-public struct AnyPipe<Input, Output>: PipeType {
+public class AnyPipe<Input, Output>: PipeType {
   public typealias PipeInput = Input
   public typealias PipeOutput = Output
   
-  private let inputable: AnyInputable<Input>?
-  private weak var weakInputable: AnyInputable<Input>? = nil
-  private let outputable: AnyOutputable<Output>?
-  private weak var weakOutputable: AnyOutputable<Output>? = nil
+  private let inputable: AnyInputable<Input>
+//  private weak var weakInputable: AnyInputable<Input>? = nil
+  private let outputable: AnyOutputable<Output>
+//  private weak var weakOutputable: AnyOutputable<Output>? = nil
   
-  public init<P: PipeType where P.PipeInput == Input, P.PipeOutput == Output>(_ pipe: P, weak: Bool = false) {
+  public convenience init<P: PipeType where P.PipeInput == Input, P.PipeOutput == Output>(_ pipe: P, weak: Bool = false) {
     self.init(input: pipe, output: pipe, weak: weak)
   }
   
   public init<I: Inputable, O:Outputable where I.PipeInput == PipeInput, O.PipeOutput == PipeOutput>(input: I, output: O, weak: Bool = false) {
-    self.init(inputable: AnyInputable(input), outputable: AnyOutputable(output), weak: weak)
-  }
-  
-  public init(inputable: AnyInputable<PipeInput>, outputable: AnyOutputable<PipeOutput>, weak: Bool = false) {
-    if weak {
-      weakInputable = inputable
-      weakOutputable = outputable
-      self.inputable = nil
-      self.outputable = nil
-    } else {
-      self.inputable = inputable
-      self.outputable = outputable
-    }
+    self.inputable = AnyInputable(input, weak: weak)
+    self.outputable = AnyOutputable(output, weak: weak)
   }
   
   public func insert(input: Input) {
-    (inputable ?? weakInputable)?.insert(input)
+    inputable.insert(input)
   }
 
+  public var outputs: [AnyInputable<PipeOutput>] {
+    get {
+      return outputable.outputs
+    }
+  }
+  
   public func connect<I: Inputable where I.PipeInput == Output>(inputable: I) {
-    (outputable ?? weakOutputable)?.connect(AnyInputable(inputable))
+    outputable.connect(AnyInputable(inputable))
   }
 }
 

@@ -18,4 +18,10 @@ extension Pipeable {
   public func connect<I : Inputable where I.PipeInput == PipeOutput>(inputable: I) {
     pipe.connect(inputable)
   }
+  
+  public var outputs: [AnyInputable<PipeOutput>] {
+    get {
+      return pipe.outputs
+    }
+  }
 }

@@ -166,4 +166,15 @@ class PipeTests: XCTestCase {
     
     XCTAssertEqual(output, 0)
   }
+  
+  func testWeakAnyPipeMaintainsConnectionBetweenTwoStronglyHeldPipes() {
+    var output = 0
+    let endPipe = Pipe { output = $0 }
+    let pipeline = Pipe { return $0 + 1 } |- AnyPipe(endPipe, weak: true)
+    
+    pipeline.insert(1)
+    
+    XCTAssertEqual(output, 2)
+    XCTAssertNotNil(endPipe) // to make sure it doesn't release
+  }
 }
