@@ -43,7 +43,7 @@ class ObservableTests: XCTestCase {
     XCTAssertEqual(callCount, 1)
   }
   
-  func testObservableDoesNotInsertValueIfItDidNotChange() {
+  func testObservableDoesNotInsertPropertySetValueIfItDidNotChange() {
     let observable = Observable(100)
     
     var callCount = 0
@@ -58,12 +58,51 @@ class ObservableTests: XCTestCase {
     XCTAssertEqual(callCount, 1)
   }
   
-  func testInsertingValueInPipeUpdatesTheObservedValue() {
+  func testObservableDoesNotInsertPipedValueIfItDidNotChange() {
+    let observable = Observable(100)
+    
+    var callCount = 0
+    observable |- Pipe { (Int) in
+      callCount += 1
+    }
+    
+    observable.insert(123)
+    XCTAssertEqual(callCount, 1)
+    
+    observable.insert(123)
+    XCTAssertEqual(callCount, 1)
+  }
+  
+  func testInsertingValueViaPropertyInsertsExactlyOnce() {
+    let observable = Observable(100)
+    
+    var callCount = 0
+    observable |- Pipe { (Int) in
+      callCount += 1
+    }
+    
+    observable.value = 123
+    XCTAssertEqual(callCount, 1)
+  }
+  
+  func testInsertingValueViaPipeInsertsExactlyOnce() {
+    let observable = Observable(100)
+    
+    var callCount = 0
+    observable |- Pipe { (Int) in
+      callCount += 1
+    }
+    
+    observable.insert(123)
+    XCTAssertEqual(callCount, 1)
+  }
+  
+  func testInsertingValueInFusedPipeUpdatesTheObservedValue() {
     let observable = Observable(100)
     let pipe = Pipe() |- observable
-    pipe.insert(111)
+    pipe.insert(123)
     
-    XCTAssertEqual(observable.value, 111)
+    XCTAssertEqual(observable.value, 123)
   }
 }
 

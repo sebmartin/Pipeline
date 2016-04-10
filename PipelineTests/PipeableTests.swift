@@ -92,21 +92,21 @@ class PipeableTests: XCTestCase {
 // MARK: - Custom Pipeables
 
 extension PipeableTests {
-  private struct IntToStringPipeable: Pipeable {
+  private class IntToStringPipeable: Pipeable {
     typealias PipeInput = Int
     typealias PipeOutput = String
 
     var pipe = AnyPipe(Pipe<PipeInput, PipeOutput>(processor: { return "custom \($0)" }))
   }
   
-  private struct IntToIntPipeable: Pipeable {
+  private class IntToIntPipeable: Pipeable {
     typealias PipeInput = Int
     typealias PipeOutput = Int
     
     var pipe = AnyPipe(Pipe<PipeInput, PipeOutput>(processor: { return $0 + 1 }))
   }
   
-  private struct CustomEndType: Pipeable {
+  private class CustomEndType: Pipeable {
     typealias PipeInput = Int
     typealias PipeOutput = Void
     

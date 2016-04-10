@@ -53,6 +53,8 @@ public class Pipe<Input,Output>: Processable, PipeType {
   public typealias PipeInput = Input
   public typealias PipeOutput = Output
   
+  public var filter: (input: PipeInput) -> Bool = { (input) in return true }
+  
   // MARK: Processable
   
   public var processor: (PipeInput) -> PipeOutput
@@ -67,6 +69,9 @@ public class Pipe<Input,Output>: Processable, PipeType {
   // MARK: Inputable
   
   public func insert(input: PipeInput) {
+    if !filter(input: input) {
+      return
+    }
     let output = self.process(input)
     for outputable in self.outputs {
       outputable.insert(output)
@@ -134,9 +139,7 @@ public class AnyPipe<Input, Output>: PipeType {
   public typealias PipeOutput = Output
   
   private let inputable: AnyInputable<Input>
-//  private weak var weakInputable: AnyInputable<Input>? = nil
   private let outputable: AnyOutputable<Output>
-//  private weak var weakOutputable: AnyOutputable<Output>? = nil
   
   public convenience init<P: PipeType where P.PipeInput == Input, P.PipeOutput == Output>(_ pipe: P, weak: Bool = false) {
     self.init(input: pipe, output: pipe, weak: weak)

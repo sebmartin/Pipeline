@@ -16,17 +16,21 @@ final public class ControlPipe<Control where Control:ControlType, Control:UICont
   
   public required init(_ control: Control, events: UIControlEvents=UIControlEvents.ValueChanged) {
     self.control = control
-    let pipe = Pipe {
-      // Update the control on pipe input, but only if it's different to avoid echo
-      if $0 != control.controlValue() {
-        control.setControlValue($0)
-      }
-      return $0
-    } as Pipe<PipeInput, PipeOutput>
-    self.pipe = AnyPipe(pipe)
     
-    self.target.handler = { [weak self] in
-      self?.pipe.insert(control.controlValue())
+    let outputPipe = Pipe<PipeInput, PipeOutput> {
+      return $0
+    }
+    let inputPipe = Pipe<PipeInput, PipeOutput> {
+      control.setControlValue($0)
+      return $0
+    }
+    inputPipe.filter = {
+      control.controlValue() != $0
+    }
+    self.pipe = AnyPipe(input: inputPipe, output: outputPipe)
+    
+    self.target.handler = {
+      outputPipe.insert(control.controlValue())
     }
     self.control.addTarget(self.target, action: #selector(Target<Control>.onControlEvent), forControlEvents: events)
   }

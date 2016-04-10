@@ -13,19 +13,40 @@ class ViewFieldTests: XCTestCase {
   func testFieldPropertyWithCompatibleTypesHasDefaultSetupFunction() {
     let value = "text"
     let view = UITextField()
-    let prop = ViewProperty(value: value, view: view) { (value, view, isValid) in
-      value |- view
-      view |- value
-    }
+    var prop = ViewProperty(value: value, view: view)
     
-    let expectation = expectationWithDescription("Process event on main loop")
-    prop.viewPipe |- { (value) in
-      expectation.fulfill()
-    }
+    prop.value = "something"
     
-    prop.valuePipe.insert("something")
-    
-    waitForExpectationsWithTimeout(1.0, handler: nil)
     XCTAssertEqual(view.text, "something")
   }
+  
+  func testFieldPropertyWithIncompatibleTypesCanBeUsedWithSetupFunction() {
+    let value = 1
+    let view = UITextField()
+    var prop = ViewProperty(value: value, view: view)
+    { (value, view, isValid) in
+      value |- { "\($0)" } |- view
+      view |- { Int($0) ?? 0 } |- value
+    }
+    
+    prop.value = 123
+    
+    XCTAssertEqual(view.text, "123")
+  }
+  
+  func testChangingControlValueUpdatesTheModelValue() {
+    let value = "text"
+    let view = UITextField()
+    let prop = ViewProperty(value: value, view: view)
+    
+    let expectation = expectationWithDescription("Process event on main loop")
+    prop.viewPipe.connect(Pipe<String, Void>{ (intput) in
+      expectation.fulfill()
+    })
+    
+    view.text = "something"
+    view.sendActionsForControlEvents(.ValueChanged)
+
+    waitForExpectationsWithTimeout(1.0, handler: nil)
+    XCTAssertEqual(prop.valuePipe.value, "something")  }
 }
