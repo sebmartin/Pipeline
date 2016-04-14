@@ -48,5 +48,15 @@ class ViewFieldTests: XCTestCase {
     view.sendActionsForControlEvents(.ValueChanged)
 
     waitForExpectationsWithTimeout(1.0, handler: nil)
-    XCTAssertEqual(prop.valuePipe.value, "something")  }
+    XCTAssertEqual(prop.value, "something")
+  }
+  
+  func testControlIsInitializedWithCurrentValue() {
+    let value = "text"
+    let view = UITextField()
+    let prop = ViewProperty(value: value, view: view)
+    
+    XCTAssertEqual(view.text, "text")
+    XCTAssertEqual(prop.value, "text")
+  }
 }

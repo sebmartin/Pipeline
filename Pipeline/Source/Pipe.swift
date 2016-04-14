@@ -183,3 +183,7 @@ public func |- <X, Y, Right: PipeType where Right.PipeInput == Y> (left: (X) -> 
 public func |- <Y, Z, Left: PipeType where Left.PipeOutput == Y> (left: Left, right: (Y) -> Z) -> AnyPipe<Left.PipeInput, Z> {
   return left |- Pipe(processor: right)
 }
+
+// TODO: See if I can fuse an outputable to a pipe with the resulting type being AnyType<Void, X>.  That way I can fuse 
+//   the validation status in FormElement
+

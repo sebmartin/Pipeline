@@ -19,7 +19,10 @@ final public class Observable<T:Equatable>: Pipeable {
       valueDidChange = value != newValue
     }
     didSet {
-      outputPipe.insert(value)
+      // Guard against inserting the value without it having changed when triggered via the setter
+      if valueDidChange {
+        outputPipe.insert(value)
+      }
       valueDidChange = false
     }
   }
@@ -44,17 +47,17 @@ final public class Observable<T:Equatable>: Pipeable {
       return $0
     }
     inputPipe.filter = { [weak self] in
+      // Guard against inserting the value without it having changed when triggered via pipe input
       return self?.value != $0
-    }
-    
-    // Only output if the value actually changed
-    outputPipe.filter = { [weak self] (input: PipeInput) in
-      return self?.valueDidChange ?? false
     }
     
     // Create a new pipe with the input and output _without_ connecting them.  The inputPipe will
     // mutate the `value` property which will in turn insert into outputPipe iff the value is different
     // This is to prevent multiple calls to insert for the same input.
     self.pipe = AnyPipe(input: inputPipe, output: outputPipe)
+  }
+  
+  public func pump() {
+    outputPipe.insert(value)
   }
 }

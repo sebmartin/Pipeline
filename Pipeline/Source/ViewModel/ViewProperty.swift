@@ -20,6 +20,8 @@ public struct ViewProperty<X: Equatable, Y:UIControl where Y:ControlType> {
     let pipe1 = AnyPipe(valuePipe, weak: false)
     let pipe2 = AnyPipe(viewPipe, weak: true)
     setup(value: pipe1, view: pipe2, isValid: AnyPipe(isValid))
+    
+    valuePipe.pump()
   }
   
   public var value: X {

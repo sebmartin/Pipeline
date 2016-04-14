@@ -30,6 +30,7 @@ final public class ControlPipe<Control where Control:ControlType, Control:UICont
     self.pipe = AnyPipe(input: inputPipe, output: outputPipe)
     
     self.target.handler = {
+      print("Fuck \(control.controlValue())")
       outputPipe.insert(control.controlValue())
     }
     self.control.addTarget(self.target, action: #selector(Target<Control>.onControlEvent), forControlEvents: events)
