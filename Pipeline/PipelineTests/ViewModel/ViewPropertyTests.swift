@@ -45,7 +45,7 @@ class ViewFieldTests: XCTestCase {
     })
     
     view.text = "something"
-    view.sendActionsForControlEvents(.ValueChanged)
+    view.sendActionsForControlEvents(.EditingChanged)
 
     waitForExpectationsWithTimeout(1.0, handler: nil)
     XCTAssertEqual(prop.value, "something")

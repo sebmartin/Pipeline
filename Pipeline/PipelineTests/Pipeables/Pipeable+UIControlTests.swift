@@ -46,7 +46,7 @@ class ControlPipeTests: XCTestCase {
     }
     
     datePicker.date = value
-    datePicker.sendActionsForControlEvents(.ValueChanged)
+    datePicker.sendActionsForControlEvents(.EditingChanged)
     
     waitForExpectationsWithTimeout(1.0, handler: nil)
     XCTAssertEqual(output, value)
@@ -81,21 +81,21 @@ class ControlPipeTests: XCTestCase {
     pageControl.numberOfPages = value + 1
     var output: Int?
     let expectation = expectationWithDescription("Process event on main loop")
-    let pipeline = ControlPipe(pageControl, events: .ValueChanged) |- Pipe {
+    let pipeline = ControlPipe(pageControl, events: .EditingChanged) |- Pipe {
       (input: Int) in
       output = input
       expectation.fulfill()
     }
     
     pageControl.currentPage = value
-    pageControl.sendActionsForControlEvents(.ValueChanged)
+    pageControl.sendActionsForControlEvents(.EditingChanged)
     
     waitForExpectationsWithTimeout(1.0, handler: nil)
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
   }
   
-  func testUIPageControlDefaultsToValueChangedEvent() {
+  func testUIPageControlDefaultsToEditingChangedEvent() {
     let value = 5
     let pageControl = UIPageControl()
     pageControl.numberOfPages = value + 1
@@ -108,7 +108,7 @@ class ControlPipeTests: XCTestCase {
     }
     
     pageControl.currentPage = value
-    pageControl.sendActionsForControlEvents(.ValueChanged)
+    pageControl.sendActionsForControlEvents(.EditingChanged)
     
     waitForExpectationsWithTimeout(1.0, handler: nil)
     XCTAssertEqual(output, value)
@@ -144,21 +144,21 @@ class ControlPipeTests: XCTestCase {
     let control = UISlider()
     var output: Float?
     let expectation = expectationWithDescription("Process event on main loop")
-    let pipeline = ControlPipe(control, events: .ValueChanged) |- Pipe {
+    let pipeline = ControlPipe(control, events: .EditingChanged) |- Pipe {
       (input: Float) in
       output = input
       expectation.fulfill()
     }
     
     control.value = value
-    control.sendActionsForControlEvents(.ValueChanged)
+    control.sendActionsForControlEvents(.EditingChanged)
     
     waitForExpectationsWithTimeout(1.0, handler: nil)
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
   }
   
-  func testUISliderDefaultsToValueChangedEvent() {
+  func testUISliderDefaultsToEditingChangedEvent() {
     let value = 0.7 as Float
     let control = UISlider()
     var output: Float?
@@ -170,7 +170,7 @@ class ControlPipeTests: XCTestCase {
     }
     
     control.value = value
-    control.sendActionsForControlEvents(.ValueChanged)
+    control.sendActionsForControlEvents(.EditingChanged)
     
     waitForExpectationsWithTimeout(1.0, handler: nil)
     XCTAssertEqual(output, value)
@@ -204,21 +204,21 @@ class ControlPipeTests: XCTestCase {
     let control = UIStepper()
     var output: Double?
     let expectation = expectationWithDescription("Process event on main loop")
-    let pipeline = ControlPipe(control, events: .ValueChanged) |- Pipe {
+    let pipeline = ControlPipe(control, events: .EditingChanged) |- Pipe {
       (input: Double) in
       output = input
       expectation.fulfill()
     }
     
     control.value = value
-    control.sendActionsForControlEvents(.ValueChanged)
+    control.sendActionsForControlEvents(.EditingChanged)
     
     waitForExpectationsWithTimeout(1.0, handler: nil)
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
   }
   
-  func testUIStepperDefaultsToValueChangedEvent() {
+  func testUIStepperDefaultsToEditingChangedEvent() {
     let value = 0.7 as Double
     let control = UIStepper()
     var output: Double?
@@ -230,7 +230,7 @@ class ControlPipeTests: XCTestCase {
     }
     
     control.value = value
-    control.sendActionsForControlEvents(.ValueChanged)
+    control.sendActionsForControlEvents(.EditingChanged)
     
     waitForExpectationsWithTimeout(1.0, handler: nil)
     XCTAssertEqual(output, value)
@@ -264,21 +264,21 @@ class ControlPipeTests: XCTestCase {
     let control = UISwitch()
     var output: Bool?
     let expectation = expectationWithDescription("Process event on main loop")
-    let pipeline = ControlPipe(control, events: .ValueChanged) |- Pipe {
+    let pipeline = ControlPipe(control, events: .EditingChanged) |- Pipe {
       (input: Bool) in
       output = input
       expectation.fulfill()
     }
     
     control.on = value
-    control.sendActionsForControlEvents(.ValueChanged)
+    control.sendActionsForControlEvents(.EditingChanged)
     
     waitForExpectationsWithTimeout(1.0, handler: nil)
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
   }
   
-  func testUISwitchDefaultsToValueChangedEvent() {
+  func testUISwitchDefaultsToEditingChangedEvent() {
     let value = true
     let control = UISwitch()
     var output: Bool?
@@ -290,7 +290,7 @@ class ControlPipeTests: XCTestCase {
     }
     
     control.on = value
-    control.sendActionsForControlEvents(.ValueChanged)
+    control.sendActionsForControlEvents(.EditingChanged)
     
     waitForExpectationsWithTimeout(1.0, handler: nil)
     XCTAssertEqual(output, value)
@@ -324,21 +324,21 @@ class ControlPipeTests: XCTestCase {
     let control = UITextField()
     var output: String?
     let expectation = expectationWithDescription("Process event on main loop")
-    let pipeline = ControlPipe(control, events: .ValueChanged) |- Pipe {
+    let pipeline = ControlPipe(control, events: .EditingChanged) |- Pipe {
       (input: String) in
       output = input
       expectation.fulfill()
     }
     
     control.text = value
-    control.sendActionsForControlEvents(.ValueChanged)
+    control.sendActionsForControlEvents(.EditingChanged)
     
     waitForExpectationsWithTimeout(1.0, handler: nil)
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
   }
   
-  func testUITextFieldDefaultsToValueChangedEvent() {
+  func testUITextFieldDefaultsToEditingChangedEvent() {
     let value = "Pipeline!"
     let control = UITextField()
     var output: String?
@@ -350,7 +350,7 @@ class ControlPipeTests: XCTestCase {
     }
     
     control.text = value
-    control.sendActionsForControlEvents(.ValueChanged)
+    control.sendActionsForControlEvents(.EditingChanged)
     
     waitForExpectationsWithTimeout(1.0, handler: nil)
     XCTAssertEqual(output, value)

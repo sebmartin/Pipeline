@@ -14,7 +14,7 @@ final public class ControlPipe<Control where Control:ControlType, Control:UICont
   public var pipe: AnyPipe<PipeInput, PipeOutput>
   private let target = Target<Control>()
   
-  public required init(_ control: Control, events: UIControlEvents=UIControlEvents.ValueChanged) {
+  public required init(_ control: Control, events: UIControlEvents=UIControlEvents.EditingChanged) {
     self.control = control
     
     let outputPipe = Pipe<PipeInput, PipeOutput> {
