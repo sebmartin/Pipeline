@@ -6,15 +6,15 @@
 //  Copyright © 2016 Seb Martin. All rights reserved.
 //
 
-public struct ViewProperty<X: Equatable, Y:UIControl where Y:ControlType> {
+public struct ViewProperty<X: Equatable, Y:UIControl where Y:PipeableViewType> {
   public var valuePipe: Observable<X>
-  public var viewPipe: ControlPipe<Y>
+  public var viewPipe: ViewPipe<Y>
   public var isValidPipe: AnyOutputable<Bool>
   
-  public init(value: X, view: Y, setup: (value: AnyPipe<X,X>, view: AnyPipe<Y.ControlValueType,Y.ControlValueType>, isValid: AnyPipe<Bool, Bool>) -> Void) {
+  public init(value: X, view: Y, setup: (value: AnyPipe<X,X>, view: AnyPipe<Y.ViewValueType,Y.ViewValueType>, isValid: AnyPipe<Bool, Bool>) -> Void) {
     let isValid = Observable<Bool>(true)
     valuePipe = Observable(value)
-    viewPipe = ControlPipe(view)
+    viewPipe = ViewPipe(view)
     isValidPipe = AnyOutputable(isValid)
     
     let pipe1 = AnyPipe(valuePipe, weak: false)
@@ -34,7 +34,7 @@ public struct ViewProperty<X: Equatable, Y:UIControl where Y:ControlType> {
   }
 }
 
-extension ViewProperty where X == Y.ControlValueType {
+extension ViewProperty where X == Y.ViewValueType {
   public init (value: X, view: Y) {
     self.init(value: value, view: view) {
       (value, view, isValid) in

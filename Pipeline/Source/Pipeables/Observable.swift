@@ -6,7 +6,7 @@
 //  Copyright © 2016 Seb Martin. All rights reserved.
 //
 
-final public class Observable<T:Equatable>: Pipeable {
+public class Observable<T:Equatable>: Pipeable {
   public typealias PipeInput = T
   public typealias PipeOutput = T
   

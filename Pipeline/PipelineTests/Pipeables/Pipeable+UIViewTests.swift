@@ -1,5 +1,5 @@
 //
-//  Pipeable+UIControlTests.swift
+//  Pipeable+UIViewTests.swift
 //  Pipeline
 //
 //  Created by Seb Martin on 2016-03-11.
@@ -11,7 +11,7 @@ import CoreData
 import UIKit
 import Pipeline
 
-class ControlPipeTests: XCTestCase {
+class ViewPipeTests: XCTestCase {
   
   // MARK: UIDatePicker
   
@@ -19,17 +19,14 @@ class ControlPipeTests: XCTestCase {
     let value = NSDate()
     let datePicker = UIDatePicker()
     var output: NSDate?
-    let expectation = expectationWithDescription("Process event on main loop")
-    let pipeline = ControlPipe(datePicker, events: .ValueChanged) |- Pipe {
+    let pipeline = ViewPipe(datePicker, events: .ValueChanged) |- Pipe {
       (input: NSDate) in
       output = input
-      expectation.fulfill()
     }
     
     datePicker.date = value
     datePicker.sendActionsForControlEvents(.ValueChanged)
     
-    waitForExpectationsWithTimeout(1.0, handler: nil)
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
   }
@@ -38,17 +35,14 @@ class ControlPipeTests: XCTestCase {
     let value = NSDate()
     let datePicker = UIDatePicker()
     var output: NSDate?
-    let expectation = expectationWithDescription("Process event on main loop")
     let pipeline = datePicker |- Pipe {
       (input: NSDate) in
       output = input
-      expectation.fulfill()
     }
     
     datePicker.date = value
     datePicker.sendActionsForControlEvents(.EditingChanged)
     
-    waitForExpectationsWithTimeout(1.0, handler: nil)
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
   }
@@ -56,7 +50,7 @@ class ControlPipeTests: XCTestCase {
   func testUIDatePickerUpdatesOnInput() {
     let value = NSDate()
     let datePicker = UIDatePicker()
-    let pipeline = Pipe() |- ControlPipe(datePicker)
+    let pipeline = Pipe() |- ViewPipe(datePicker)
     
     pipeline.insert(value)
     
@@ -80,17 +74,14 @@ class ControlPipeTests: XCTestCase {
     let pageControl = UIPageControl()
     pageControl.numberOfPages = value + 1
     var output: Int?
-    let expectation = expectationWithDescription("Process event on main loop")
-    let pipeline = ControlPipe(pageControl, events: .EditingChanged) |- Pipe {
+    let pipeline = ViewPipe(pageControl, events: .EditingChanged) |- Pipe {
       (input: Int) in
       output = input
-      expectation.fulfill()
     }
     
     pageControl.currentPage = value
     pageControl.sendActionsForControlEvents(.EditingChanged)
     
-    waitForExpectationsWithTimeout(1.0, handler: nil)
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
   }
@@ -100,17 +91,14 @@ class ControlPipeTests: XCTestCase {
     let pageControl = UIPageControl()
     pageControl.numberOfPages = value + 1
     var output: Int?
-    let expectation = expectationWithDescription("Process event on main loop")
     let pipeline = pageControl |- Pipe {
       (input: Int) in
       output = input
-      expectation.fulfill()
     }
     
     pageControl.currentPage = value
     pageControl.sendActionsForControlEvents(.EditingChanged)
     
-    waitForExpectationsWithTimeout(1.0, handler: nil)
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
   }
@@ -119,7 +107,7 @@ class ControlPipeTests: XCTestCase {
     let value = 5
     let pageControl = UIPageControl()
     pageControl.numberOfPages = value + 1
-    let pipeline = Pipe() |- ControlPipe(pageControl)
+    let pipeline = Pipe() |- ViewPipe(pageControl)
     
     pipeline.insert(value)
     
@@ -139,247 +127,247 @@ class ControlPipeTests: XCTestCase {
   
   // MARK: UISlider
   
-  func testUISliderOutputsPageIndex() {
+  func testUISliderOutputsValue() {
     let value = 0.7 as Float
-    let control = UISlider()
+    let view = UISlider()
     var output: Float?
-    let expectation = expectationWithDescription("Process event on main loop")
-    let pipeline = ControlPipe(control, events: .EditingChanged) |- Pipe {
+    let pipeline = ViewPipe(view, events: .EditingChanged) |- Pipe {
       (input: Float) in
       output = input
-      expectation.fulfill()
     }
     
-    control.value = value
-    control.sendActionsForControlEvents(.EditingChanged)
+    view.value = value
+    view.sendActionsForControlEvents(.EditingChanged)
     
-    waitForExpectationsWithTimeout(1.0, handler: nil)
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
   }
   
   func testUISliderDefaultsToEditingChangedEvent() {
     let value = 0.7 as Float
-    let control = UISlider()
+    let view = UISlider()
     var output: Float?
-    let expectation = expectationWithDescription("Process event on main loop")
-    let pipeline = control |- Pipe {
+    let pipeline = view |- Pipe {
       (input: Float) in
       output = input
-      expectation.fulfill()
     }
     
-    control.value = value
-    control.sendActionsForControlEvents(.EditingChanged)
+    view.value = value
+    view.sendActionsForControlEvents(.EditingChanged)
     
-    waitForExpectationsWithTimeout(1.0, handler: nil)
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
   }
   
   func testUISliderUpdatesOnInput() {
     let value = 0.7 as Float
-    let control = UISlider()
-    let pipeline = Pipe() |- ControlPipe(control)
+    let view = UISlider()
+    let pipeline = Pipe() |- ViewPipe(view)
     
     pipeline.insert(value)
     
-    XCTAssertEqual(control.value, value)
+    XCTAssertEqual(view.value, value)
   }
   
   func testUISliderUpdatesOnInputDirect() {
     let value = 0.7 as Float
-    let control = UISlider()
-    let pipeline = Pipe() |- control
+    let view = UISlider()
+    let pipeline = Pipe() |- view
     
     pipeline.insert(value)
     
-    XCTAssertEqual(control.value, value)
+    XCTAssertEqual(view.value, value)
   }
   
   // MARK: UIStepper
   
-  func testUIStepperOutputsPageIndex() {
+  func testUIStepperOutputsValue() {
     let value = 0.7 as Double
-    let control = UIStepper()
+    let view = UIStepper()
     var output: Double?
-    let expectation = expectationWithDescription("Process event on main loop")
-    let pipeline = ControlPipe(control, events: .EditingChanged) |- Pipe {
+    let pipeline = ViewPipe(view, events: .EditingChanged) |- Pipe {
       (input: Double) in
       output = input
-      expectation.fulfill()
     }
     
-    control.value = value
-    control.sendActionsForControlEvents(.EditingChanged)
+    view.value = value
+    view.sendActionsForControlEvents(.EditingChanged)
     
-    waitForExpectationsWithTimeout(1.0, handler: nil)
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
   }
   
   func testUIStepperDefaultsToEditingChangedEvent() {
     let value = 0.7 as Double
-    let control = UIStepper()
+    let view = UIStepper()
     var output: Double?
-    let expectation = expectationWithDescription("Process event on main loop")
-    let pipeline = control |- Pipe {
+    let pipeline = view |- Pipe {
       (input: Double) in
       output = input
-      expectation.fulfill()
     }
     
-    control.value = value
-    control.sendActionsForControlEvents(.EditingChanged)
+    view.value = value
+    view.sendActionsForControlEvents(.EditingChanged)
     
-    waitForExpectationsWithTimeout(1.0, handler: nil)
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
   }
   
   func testUIStepperUpdatesOnInput() {
     let value = 0.7 as Double
-    let control = UIStepper()
-    let pipeline = Pipe() |- ControlPipe(control)
+    let view = UIStepper()
+    let pipeline = Pipe() |- ViewPipe(view)
     
     pipeline.insert(value)
     
-    XCTAssertEqual(control.value, value)
+    XCTAssertEqual(view.value, value)
   }
   
   func testUIStepperUpdatesOnInputDirect() {
     let value = 0.7 as Double
-    let control = UIStepper()
-    let pipeline = Pipe() |- control
+    let view = UIStepper()
+    let pipeline = Pipe() |- view
     
     pipeline.insert(value)
     
-    XCTAssertEqual(control.value, value)
+    XCTAssertEqual(view.value, value)
   }
   
   // MARK: UISwitch
   
-  func testUISwitchOutputsPageIndex() {
+  func testUISwitchOutputsValue() {
     let value = true
-    let control = UISwitch()
+    let view = UISwitch()
     var output: Bool?
-    let expectation = expectationWithDescription("Process event on main loop")
-    let pipeline = ControlPipe(control, events: .EditingChanged) |- Pipe {
+    let pipeline = ViewPipe(view, events: .EditingChanged) |- Pipe {
       (input: Bool) in
       output = input
-      expectation.fulfill()
     }
     
-    control.on = value
-    control.sendActionsForControlEvents(.EditingChanged)
+    view.on = value
+    view.sendActionsForControlEvents(.EditingChanged)
     
-    waitForExpectationsWithTimeout(1.0, handler: nil)
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
   }
   
   func testUISwitchDefaultsToEditingChangedEvent() {
     let value = true
-    let control = UISwitch()
+    let view = UISwitch()
     var output: Bool?
-    let expectation = expectationWithDescription("Process event on main loop")
-    let pipeline = control |- Pipe {
+    let pipeline = view |- Pipe {
       (input: Bool) in
       output = input
-      expectation.fulfill()
     }
     
-    control.on = value
-    control.sendActionsForControlEvents(.EditingChanged)
+    view.on = value
+    view.sendActionsForControlEvents(.EditingChanged)
     
-    waitForExpectationsWithTimeout(1.0, handler: nil)
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
   }
   
   func testUISwitchUpdatesOnInput() {
     let value = true
-    let control = UISwitch()
-    let pipeline = Pipe() |- ControlPipe(control)
+    let view = UISwitch()
+    let pipeline = Pipe() |- ViewPipe(view)
     
     pipeline.insert(value)
     
-    XCTAssertEqual(control.on, value)
+    XCTAssertEqual(view.on, value)
   }
   
   func testUISwitchUpdatesOnInputDirect() {
     let value = true
-    let control = UISwitch()
-    let pipeline = Pipe() |- control
+    let view = UISwitch()
+    let pipeline = Pipe() |- view
     
     pipeline.insert(value)
     
-    XCTAssertEqual(control.on, value)
+    XCTAssertEqual(view.on, value)
   }
   
   // MARK: UITextField
   
-  func testUITextFieldOutputsPageIndex() {
+  func testUITextFieldOutputsText() {
     let value = "Pipeline!"
-    let control = UITextField()
+    let view = UITextField()
     var output: String?
-    let expectation = expectationWithDescription("Process event on main loop")
-    let pipeline = ControlPipe(control, events: .EditingChanged) |- Pipe {
+    let pipeline = ViewPipe(view, events: .EditingChanged) |- Pipe {
       (input: String) in
       output = input
-      expectation.fulfill()
     }
     
-    control.text = value
-    control.sendActionsForControlEvents(.EditingChanged)
+    view.text = value
+    view.sendActionsForControlEvents(.EditingChanged)
     
-    waitForExpectationsWithTimeout(1.0, handler: nil)
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
   }
   
   func testUITextFieldDefaultsToEditingChangedEvent() {
     let value = "Pipeline!"
-    let control = UITextField()
+    let view = UITextField()
     var output: String?
-    let expectation = expectationWithDescription("Process event on main loop")
-    let pipeline = control |- Pipe {
+    let pipeline = view |- Pipe {
       (input: String) in
       output = input
-      expectation.fulfill()
     }
     
-    control.text = value
-    control.sendActionsForControlEvents(.EditingChanged)
+    view.text = value
+    view.sendActionsForControlEvents(.EditingChanged)
     
-    waitForExpectationsWithTimeout(1.0, handler: nil)
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
   }
   
   func testUITextFieldWithNilTextOutputsAnEmptyString() {
-    let control = UITextField()
-    control.text = nil
-    XCTAssertEqual(control.controlValue(), "")
+    let view = UITextField()
+    view.text = nil
+    XCTAssertEqual(view.pipeableViewValue(), "")
   }
   
   func testUITextFieldUpdatesOnInput() {
     let value = "Pipeline!"
-    let control = UITextField()
-    let pipeline = Pipe() |- ControlPipe(control)
+    let view = UITextField()
+    let pipeline = Pipe() |- ViewPipe(view)
     
     pipeline.insert(value)
     
-    XCTAssertEqual(control.text, value)
+    XCTAssertEqual(view.text, value)
   }
   
   func testUITextFieldUpdatesOnInputDirect() {
     let value = "Pipeline!"
-    let control = UITextField()
-    let pipeline = Pipe() |- control
+    let view = UITextField()
+    let pipeline = Pipe() |- view
     
     pipeline.insert(value)
     
-    XCTAssertEqual(control.text, value)
+    XCTAssertEqual(view.text, value)
+  }
+  
+  // MARK: UILabel
+  
+  func testUILabelUpdatesOnInput() {
+    let value = "Pipeline!"
+    let view = UILabel()
+    let pipeline = Pipe() |- ViewPipe(view)
+    
+    pipeline.insert(value)
+    
+    XCTAssertEqual(view.text, value)
+  }
+  
+  // MARK: UIProgressView
+  
+  func testUIProgressViewUpdatesOnInput() {
+    let value = 0.5 as Float
+    let view = UIProgressView()
+    let pipeline = Pipe() |- ViewPipe(view)
+    
+    pipeline.insert(value)
+    
+    XCTAssertEqual(view.progress, value)
   }
 }

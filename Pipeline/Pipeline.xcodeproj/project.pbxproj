@@ -12,8 +12,8 @@
 		9632E7C11C911ABD004D5DF0 /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9632E7C01C911ABD004D5DF0 /* Observable.swift */; };
 		9632E7C31C911EB3004D5DF0 /* ObservableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9632E7C21C911EB3004D5DF0 /* ObservableTests.swift */; };
 		963CF34B1CB8AC8E003872C9 /* PipeableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96D5E20A1C8E9BB900DAD437 /* PipeableTests.swift */; };
-		965CD4691C93D2F80098920B /* Pipeable+UIControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 965CD4681C93D2F80098920B /* Pipeable+UIControl.swift */; };
-		965CD46B1C93D3210098920B /* Pipeable+UIControlTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 965CD46A1C93D3210098920B /* Pipeable+UIControlTests.swift */; };
+		965CD4691C93D2F80098920B /* Pipeable+UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 965CD4681C93D2F80098920B /* Pipeable+UIView.swift */; };
+		965CD46B1C93D3210098920B /* Pipeable+UIViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 965CD46A1C93D3210098920B /* Pipeable+UIViewTests.swift */; };
 		966AA4461C8EE9D000801482 /* PipeableOperatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 966AA4451C8EE9D000801482 /* PipeableOperatorTests.swift */; };
 		969747711CA8CDDF0026C884 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 969747701CA8CDDF0026C884 /* AppDelegate.swift */; };
 		96CA3DAC1CAAEA2F00C30912 /* ViewProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96CA3DAB1CAAEA2F00C30912 /* ViewProperty.swift */; };
@@ -43,16 +43,16 @@
 
 /* Begin PBXFileReference section */
 		961C0DA91CB74BE4008E8FF3 /* Validator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Validator.swift; sourceTree = "<group>"; };
-		961C0DAC1CB74FFF008E8FF3 /* ViewPropertyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewPropertyTests.swift; sourceTree = "<group>"; };
+		961C0DAC1CB74FFF008E8FF3 /* ViewPropertyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ViewPropertyTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		9632E7C01C911ABD004D5DF0 /* Observable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Observable.swift; sourceTree = "<group>"; };
 		9632E7C21C911EB3004D5DF0 /* ObservableTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObservableTests.swift; sourceTree = "<group>"; };
-		965CD4681C93D2F80098920B /* Pipeable+UIControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Pipeable+UIControl.swift"; sourceTree = "<group>"; };
-		965CD46A1C93D3210098920B /* Pipeable+UIControlTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Pipeable+UIControlTests.swift"; sourceTree = "<group>"; };
+		965CD4681C93D2F80098920B /* Pipeable+UIView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = "Pipeable+UIView.swift"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		965CD46A1C93D3210098920B /* Pipeable+UIViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = "Pipeable+UIViewTests.swift"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		966AA4451C8EE9D000801482 /* PipeableOperatorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PipeableOperatorTests.swift; sourceTree = "<group>"; };
 		9697476E1CA8CDDF0026C884 /* TestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		969747701CA8CDDF0026C884 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9697477C1CA8CDDF0026C884 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		96CA3DAB1CAAEA2F00C30912 /* ViewProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewProperty.swift; sourceTree = "<group>"; };
+		96CA3DAB1CAAEA2F00C30912 /* ViewProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ViewProperty.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		96D5E1EA1C8E95B700DAD437 /* Pipeline.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pipeline.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		96D5E1ED1C8E95B700DAD437 /* Pipeline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Pipeline.h; sourceTree = "<group>"; };
 		96D5E1EF1C8E95B700DAD437 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -102,7 +102,7 @@
 			isa = PBXGroup;
 			children = (
 				9632E7C01C911ABD004D5DF0 /* Observable.swift */,
-				965CD4681C93D2F80098920B /* Pipeable+UIControl.swift */,
+				965CD4681C93D2F80098920B /* Pipeable+UIView.swift */,
 				961C0DA91CB74BE4008E8FF3 /* Validator.swift */,
 			);
 			path = Pipeables;
@@ -111,7 +111,7 @@
 		965CD4701C952FBF0098920B /* Pipeables */ = {
 			isa = PBXGroup;
 			children = (
-				965CD46A1C93D3210098920B /* Pipeable+UIControlTests.swift */,
+				965CD46A1C93D3210098920B /* Pipeable+UIViewTests.swift */,
 				9632E7C21C911EB3004D5DF0 /* ObservableTests.swift */,
 			);
 			path = Pipeables;
@@ -348,7 +348,7 @@
 				9632E7C11C911ABD004D5DF0 /* Observable.swift in Sources */,
 				96D5E2071C8E996800DAD437 /* Pipeable.swift in Sources */,
 				961C0DAA1CB74BE4008E8FF3 /* Validator.swift in Sources */,
-				965CD4691C93D2F80098920B /* Pipeable+UIControl.swift in Sources */,
+				965CD4691C93D2F80098920B /* Pipeable+UIView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -356,7 +356,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				965CD46B1C93D3210098920B /* Pipeable+UIControlTests.swift in Sources */,
+				965CD46B1C93D3210098920B /* Pipeable+UIViewTests.swift in Sources */,
 				963CF34B1CB8AC8E003872C9 /* PipeableTests.swift in Sources */,
 				9632E7C31C911EB3004D5DF0 /* ObservableTests.swift in Sources */,
 				96D5E1FA1C8E95B700DAD437 /* PipeTests.swift in Sources */,

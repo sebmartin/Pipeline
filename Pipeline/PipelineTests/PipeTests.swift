@@ -121,9 +121,9 @@ class PipeTests: XCTestCase {
     // 1 -> Pipe(+1) -> Pipe(+2) -> 4
     //            \---> Pipe(+3) -> 5
     var output1 = 0, output2 = 0
-    let pipeline = Pipe { return $0 + 1 }
-    pipeline |- { return $0 + 2 } |- { output1 = $0 }
-    pipeline |- { return $0 + 3 } |- { output2 = $0 }
+    let pipeline = Pipe { $0 + 1 }
+    pipeline |- { $0 + 2 } |- { output1 = $0 }
+    pipeline |- { $0 + 3 } |- { output2 = $0 }
     
     pipeline.insert(1)
     
@@ -140,9 +140,26 @@ class PipeTests: XCTestCase {
     XCTAssertEqual(output, 4)
   }
   
+  func testClosureCanBePiped() {
+    var output = 0
+    let pipeline = { return $0 + 1 } |- Pipe { output = $0 + 2 }
+    
+    pipeline.insert(1)
+    XCTAssertEqual(output, 4)
+  }
+  
+  func testClosureCanBePipedToAnotherClosure() {
+    var output = 0
+    let pipeline = { $0 + 1 } |- { output = $0 + 2 }
+    
+    pipeline.insert(1)
+    
+    XCTAssertEqual(output, 4)
+  }
+  
   func testStrongAnyPipeRetainsPipe() {
     var output = 0
-    let pipeline = Pipe { return $0 + 1 } |- AnyPipe(Pipe { output = $0 }, weak: false)
+    let pipeline = Pipe { $0 + 1 } |- AnyPipe(Pipe { output = $0 }, weak: false)
     
     pipeline.insert(1)
     
@@ -151,7 +168,7 @@ class PipeTests: XCTestCase {
   
   func testAnyPipeDefaultsToStrong() {
     var output = 0
-    let pipeline = Pipe { return $0 + 1 } |- AnyPipe(Pipe { output = $0 })
+    let pipeline = Pipe { $0 + 1 } |- AnyPipe(Pipe { output = $0 })
     
     pipeline.insert(1)
     
@@ -160,7 +177,7 @@ class PipeTests: XCTestCase {
   
   func testWeakAnyPipeDoesNotRetainPipe() {
     var output = 0
-    let pipeline = Pipe { return $0 + 1 } |- AnyPipe(Pipe { output = $0 }, weak: true)
+    let pipeline = Pipe { $0 + 1 } |- AnyPipe(Pipe { output = $0 }, weak: true)
     
     pipeline.insert(1)
     
@@ -170,7 +187,7 @@ class PipeTests: XCTestCase {
   func testWeakAnyPipeMaintainsConnectionBetweenTwoStronglyHeldPipes() {
     var output = 0
     let endPipe = Pipe { output = $0 }
-    let pipeline = Pipe { return $0 + 1 } |- AnyPipe(endPipe, weak: true)
+    let pipeline = Pipe { $0 + 1 } |- AnyPipe(endPipe, weak: true)
     
     pipeline.insert(1)
     

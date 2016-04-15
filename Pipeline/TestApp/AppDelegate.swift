@@ -13,16 +13,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   
   // This app exists for the sole purpose of running as the Unit Test host app.  Without this app, any unit tests
   // using Cocoa's Target/Action API will fail.
-  func applicationDidFinishLaunching(application: UIApplication) {
-    let window = UIWindow()
-    let viewController = ViewController()
-    window.rootViewController = viewController
-    window.addSubview(viewController.view)
-    window.frame = UIScreen.mainScreen().bounds
-    viewController.view.frame = window.bounds
-    
-    window.makeKeyAndVisible()
-  }
 
 }
 

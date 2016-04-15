@@ -34,7 +34,7 @@ class ViewFieldTests: XCTestCase {
     XCTAssertEqual(view.text, "123")
   }
   
-  func testChangingControlValueUpdatesTheModelValue() {
+  func testChangingViewValueUpdatesTheModelValue() {
     let value = "text"
     let view = UITextField()
     let prop = ViewProperty(value: value, view: view)
@@ -51,7 +51,7 @@ class ViewFieldTests: XCTestCase {
     XCTAssertEqual(prop.value, "something")
   }
   
-  func testControlIsInitializedWithCurrentValue() {
+  func testViewIsInitializedWithCurrentValue() {
     let value = "text"
     let view = UITextField()
     let prop = ViewProperty(value: value, view: view)

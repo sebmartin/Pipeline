@@ -36,8 +36,6 @@ extension Processable where PipeInput == PipeOutput {
   }
 }
 
-// MARK: - Pipe
-
 public protocol PipeType: Inputable, Outputable {
   func fuse<P: PipeType where P.PipeInput == PipeOutput>(pipe: P) -> AnyPipe<PipeInput, P.PipeOutput>
 }
@@ -48,6 +46,8 @@ extension PipeType {
     return AnyPipe(input: self, output: pipe)
   }
 }
+
+// MARK: - Pipe
 
 public class Pipe<Input,Output>: Processable, PipeType {
   public typealias PipeInput = Input
