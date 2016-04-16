@@ -43,39 +43,3 @@ extension ViewProperty where X == Y.ViewValueType {
     }
   }
 }
-
-// MARK: - Testsss
-
-struct Model {
-  var text: String
-  var number: Int
-}
-
-class CustomView: UIView {
-  var textField = UITextField()
-  var numberField = UITextField()
-}
-
-struct ViewModel {
-  var text: ViewProperty<String, UITextField>
-  var number: ViewProperty<Int, UITextField>
-  
-  init(model: Model, view: CustomView) {
-    text = ViewProperty(value: model.text, view: view.textField)
-    number = ViewProperty(value: model.number, view: view.numberField) {
-      (value, view, isValid) in
-      value |- { "\($0)" } |- view
-      view |- { Int($0) ?? 0 } |- value
-    }
-  }
-
-  var model: Model {
-    get {
-      return Model(
-        text: text.value,
-        number: number.value
-      )
-    }
-  }
-}
-

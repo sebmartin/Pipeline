@@ -127,7 +127,7 @@ extension UITextField: ControlType {
   public typealias ControlValueType = String
   
   public func controlValue() -> ControlValueType {
-    return self.text ?? ""
+    return self.text! // getter never returns nil
   }
   public func setControlValue(value: ControlValueType) {
     self.text = value

@@ -145,6 +145,7 @@ class PipeTests: XCTestCase {
     let pipeline = { return $0 + 1 } |- Pipe { output = $0 + 2 }
     
     pipeline.insert(1)
+    
     XCTAssertEqual(output, 4)
   }
   

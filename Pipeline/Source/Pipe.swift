@@ -17,7 +17,6 @@ public protocol Inputable: class {
 public protocol Outputable: class {
   associatedtype PipeOutput
   
-  var outputs: [AnyInputable<PipeOutput>] { get }
   func connect<I: Inputable where I.PipeInput == PipeOutput>(inputable: I)
 }
 
@@ -113,18 +112,9 @@ public class AnyOutputable<Output>: Outputable {
   public init<_Outputable: Outputable where _Outputable.PipeOutput == Output>(_ outputable: _Outputable, weak: Bool = false) {
     weak var weakOutputable = outputable
     if weak {
-      _outputs = { weakOutputable?.outputs ?? [] }
       _connect = { weakOutputable?.connect($0) }
     } else {
-      _outputs = { outputable.outputs }
       _connect = { outputable.connect($0) }
-    }
-  }
-  
-  private var _outputs: () -> [AnyInputable<PipeOutput>]
-  public var outputs: [AnyInputable<PipeOutput>] {
-    get {
-      return _outputs()
     }
   }
   
@@ -152,12 +142,6 @@ public class AnyPipe<Input, Output>: PipeType {
   
   public func insert(input: Input) {
     inputable.insert(input)
-  }
-
-  public var outputs: [AnyInputable<PipeOutput>] {
-    get {
-      return outputable.outputs
-    }
   }
   
   public func connect<I: Inputable where I.PipeInput == Output>(inputable: I) {

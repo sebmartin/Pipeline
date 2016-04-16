@@ -6,25 +6,25 @@
 //  Copyright © 2016 Seb Martin. All rights reserved.
 //
 
-class AnyValidatorType<ValueType>: ValidatorType {
+public class AnyValidatorType<ValueType>: ValidatorType {
   
-  init<V: ValidatorType where V.ValueType == ValueType>(_ validator: V) {
+  public init<V: ValidatorType where V.ValueType == ValueType>(_ validator: V) {
     _pipe = { return validator.pipe }
     _isValid = { return validator.isValid }
   }
   
   private let _pipe: () -> AnyPipe<ValueType, ValueType>
-  var pipe: AnyPipe<ValueType, ValueType> {
+  public var pipe: AnyPipe<ValueType, ValueType> {
     return _pipe()
   }
   
   private let _isValid: () -> AnyPipe<ValueType, Bool>
-  var isValid: AnyPipe<ValueType, Bool> {
+  public var isValid: AnyPipe<ValueType, Bool> {
     return _isValid()
   }
 }
 
-protocol ValidatorType: Pipeable {
+public protocol ValidatorType: Pipeable {
   associatedtype ValueType
   associatedtype PipeInput = ValueType
   associatedtype PipeOutput = ValueType
@@ -33,11 +33,11 @@ protocol ValidatorType: Pipeable {
   var isValid: AnyPipe<ValueType, Bool> { get }
 }
 
-class Validator<ValueType>: ValidatorType {
-  var pipe: AnyPipe<ValueType, ValueType>
-  var isValid: AnyPipe<ValueType, Bool>
+public class Validator<ValueType>: ValidatorType {
+  public var pipe: AnyPipe<ValueType, ValueType>
+  public var isValid: AnyPipe<ValueType, Bool>
   
-  init(validate: (value: ValueType) -> Bool) {
+  public init(validate: (value: ValueType) -> Bool) {
     let outputValue = AnyPipe(Pipe<ValueType, ValueType>())
     let outputIsValid = Observable(true)
     let input = Pipe {
