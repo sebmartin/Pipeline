@@ -52,7 +52,7 @@ public class Pipe<Input,Output>: Processable, PipeType {
   public typealias PipeInput = Input
   public typealias PipeOutput = Output
   
-  public var filter: (input: PipeInput) -> Bool = { (input) in return true }
+  public var filter: (input: PipeInput) -> Bool = { (input) in true }
   
   // MARK: Processable
   

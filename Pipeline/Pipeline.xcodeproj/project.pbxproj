@@ -16,6 +16,7 @@
 		965CD46B1C93D3210098920B /* Pipeable+UIViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 965CD46A1C93D3210098920B /* Pipeable+UIViewTests.swift */; };
 		966AA4461C8EE9D000801482 /* PipeableOperatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 966AA4451C8EE9D000801482 /* PipeableOperatorTests.swift */; };
 		969747711CA8CDDF0026C884 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 969747701CA8CDDF0026C884 /* AppDelegate.swift */; };
+		96A4E2E11CBDE5BA00ADA45F /* ValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96A4E2E01CBDE5BA00ADA45F /* ValidatorTests.swift */; };
 		96CA3DAC1CAAEA2F00C30912 /* ViewProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96CA3DAB1CAAEA2F00C30912 /* ViewProperty.swift */; };
 		96D5E1EE1C8E95B700DAD437 /* Pipeline.h in Headers */ = {isa = PBXBuildFile; fileRef = 96D5E1ED1C8E95B700DAD437 /* Pipeline.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		96D5E1F51C8E95B700DAD437 /* Pipeline.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96D5E1EA1C8E95B700DAD437 /* Pipeline.framework */; };
@@ -52,7 +53,8 @@
 		9697476E1CA8CDDF0026C884 /* TestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		969747701CA8CDDF0026C884 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9697477C1CA8CDDF0026C884 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		96CA3DAB1CAAEA2F00C30912 /* ViewProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ViewProperty.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		96A4E2E01CBDE5BA00ADA45F /* ValidatorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ValidatorTests.swift; sourceTree = "<group>"; };
+		96CA3DAB1CAAEA2F00C30912 /* ViewProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewProperty.swift; sourceTree = "<group>"; };
 		96D5E1EA1C8E95B700DAD437 /* Pipeline.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pipeline.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		96D5E1ED1C8E95B700DAD437 /* Pipeline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Pipeline.h; sourceTree = "<group>"; };
 		96D5E1EF1C8E95B700DAD437 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -113,6 +115,7 @@
 			children = (
 				965CD46A1C93D3210098920B /* Pipeable+UIViewTests.swift */,
 				9632E7C21C911EB3004D5DF0 /* ObservableTests.swift */,
+				96A4E2E01CBDE5BA00ADA45F /* ValidatorTests.swift */,
 			);
 			path = Pipeables;
 			sourceTree = "<group>";
@@ -357,6 +360,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				965CD46B1C93D3210098920B /* Pipeable+UIViewTests.swift in Sources */,
+				96A4E2E11CBDE5BA00ADA45F /* ValidatorTests.swift in Sources */,
 				963CF34B1CB8AC8E003872C9 /* PipeableTests.swift in Sources */,
 				9632E7C31C911EB3004D5DF0 /* ObservableTests.swift in Sources */,
 				96D5E1FA1C8E95B700DAD437 /* PipeTests.swift in Sources */,
