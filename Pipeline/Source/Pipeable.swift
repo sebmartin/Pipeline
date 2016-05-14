@@ -18,4 +18,12 @@ extension Pipeable {
   public func connect<I : Inputable where I.PipeInput == PipeOutput>(inputable: I) {
     pipe.connect(inputable)
   }
+  
+  public var description: String {
+    get { return pipe.description }
+  }
+  
+  public func recursiveDescription(seen: [String]) -> String {
+    return pipe.recursiveDescription(seen)
+  }
 }

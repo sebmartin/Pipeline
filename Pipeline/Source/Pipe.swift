@@ -8,13 +8,13 @@
 
 // MARK: - Protocols
 
-public protocol Inputable: class {
+public protocol Inputable: class, DescribablePipe {
   associatedtype PipeInput
 
   func insert(input: PipeInput)
 }
 
-public protocol Outputable: class {
+public protocol Outputable: class, DescribablePipe {
   associatedtype PipeOutput
   
   func connect<I: Inputable where I.PipeInput == PipeOutput>(inputable: I)
@@ -81,8 +81,37 @@ public class Pipe<Input,Output>: Processable, PipeType {
   
   public var outputs = [AnyInputable<PipeOutput>]()
   public func connect<I : Inputable where I.PipeInput == PipeOutput>(inputable: I) {
-    let inputableThunk = AnyInputable<Output>(inputable)
-    self.outputs.append(inputableThunk)
+    let inputableActual = inputable as? AnyInputable<Output> ?? AnyInputable(inputable)
+    self.outputs.append(inputableActual)
+  }
+  
+  // MARK: Description
+  
+  public var description: String {
+    return "\(String(self.dynamicType)) (\(unsafeAddressOf(self))) (outputs: \(self.outputs.count))"
+  }
+  
+  public func recursiveDescription(seen: [String]) -> String {
+    var seen = seen
+    seen.append(self.description)
+    let childDescriptions = outputs
+      .filter {
+        let address = $0.description
+        if seen.contains(address) {
+          return false
+        }
+        seen.append(address)
+        return true
+      }
+      .reduce([]) {
+        return $0 + $1.recursiveDescription(seen).characters.split("\n").map(String.init)
+      }
+    var description = self.description
+    if childDescriptions.count > 0 {
+      let innerBlock = childDescriptions.reduce("") { $0 + "\n  \($1)"}
+      description += ": \(innerBlock)"
+    }
+    return description
   }
 }
 
@@ -95,14 +124,31 @@ public class AnyInputable<Input>: Inputable {
     weak var weakInputable = inputable
     if weak {
       _insert = { weakInputable?.insert($0) }
+      _description = { weakInputable?.description ?? "(deallocated weak reference)" }
+      _recursiveDescription = { weakInputable?.recursiveDescription($0) ?? "(deallocated weak reference)" }
+
     } else {
       _insert = { inputable.insert($0) }
+      _description = { inputable.description }
+      _recursiveDescription = { inputable.recursiveDescription($0) }
     }
   }
   
   private let _insert: (input: Input) -> Void
   public func insert(input: Input) {
     _insert(input: input)
+  }
+  
+  private let _description: () -> String
+  public var description: String {
+    get {
+      return _description()
+    }
+  }
+  
+  private let _recursiveDescription: ([String]) -> String
+  public func recursiveDescription(seen: [String]) -> String {
+    return _recursiveDescription(seen)
   }
 }
 
@@ -113,14 +159,31 @@ public class AnyOutputable<Output>: Outputable {
     weak var weakOutputable = outputable
     if weak {
       _connect = { weakOutputable?.connect($0) }
+      _description = { weakOutputable?.description ?? "(deallocated weak reference)" }
+      _recursiveDescription = { weakOutputable?.recursiveDescription($0) ?? "(deallocated weak reference)" }
+
     } else {
       _connect = { outputable.connect($0) }
+      _description = { outputable.description }
+      _recursiveDescription = { outputable.recursiveDescription($0) }
     }
   }
   
   private var _connect: (inputable: AnyInputable<Output>) -> Void
   public func connect<I : Inputable where I.PipeInput == Output>(inputable: I) {
     _connect(inputable: AnyInputable(inputable))
+  }
+  
+  private let _description: () -> String
+  public var description: String {
+    get {
+      return _description()
+    }
+  }
+  
+  private let _recursiveDescription: ([String]) -> String
+  public func recursiveDescription(seen: [String]) -> String {
+    return _recursiveDescription(seen)
   }
 }
 
@@ -146,6 +209,28 @@ public class AnyPipe<Input, Output>: PipeType {
   
   public func connect<I: Inputable where I.PipeInput == Output>(inputable: I) {
     outputable.connect(AnyInputable(inputable))
+  }
+  
+  public var description: String {
+    return inputable.description
+  }
+  
+  public func recursiveDescription(seen: [String]) -> String {
+    return inputable.recursiveDescription(seen)
+  }
+}
+
+// MARK: - DescribablePipe
+
+public protocol DescribablePipe: CustomStringConvertible {
+  func recursiveDescription(seen: [String]) -> String
+}
+
+extension DescribablePipe {
+  var description: String {
+    get {
+      return recursiveDescription([])
+    }
   }
 }
 

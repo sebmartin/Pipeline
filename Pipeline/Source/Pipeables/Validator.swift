@@ -7,6 +7,8 @@
 //
 
 public class AnyValidatorType<ValueType>: ValidatorType {
+  public typealias PipeInput = ValueType
+  public typealias PipeOutput = ValueType
   
   public init<V: ValidatorType where V.ValueType == ValueType>(_ validator: V) {
     _pipe = { return validator.pipe }
@@ -34,6 +36,8 @@ public protocol ValidatorType: Pipeable {
 }
 
 public class Validator<ValueType>: ValidatorType {
+  public typealias PipeInput = ValueType
+  public typealias PipeOutput = ValueType
   public var pipe: AnyPipe<ValueType, ValueType>
   public var isValid: AnyPipe<ValueType, Bool>
   
