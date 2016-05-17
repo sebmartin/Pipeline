@@ -237,7 +237,7 @@ extension DescribablePipe {
 // MARK: - Operator
 
 infix operator |- { associativity left precedence 100 }
-public func |- <Left: PipeType, Right: PipeType where Left.PipeOutput == Right.PipeInput>(left: Left, right: Right) -> AnyPipe<Left.PipeInput, Right.PipeOutput> {
+public func |- <LeftPipe: PipeType, RightPipe: PipeType where LeftPipe.PipeOutput == RightPipe.PipeInput>(left: LeftPipe, right: RightPipe) -> AnyPipe<LeftPipe.PipeInput, RightPipe.PipeOutput> {
   return left.fuse(right)
 }
 
@@ -245,14 +245,19 @@ public func |- <X, Y, Z> (left: (X) -> Y, right: (Y) -> Z) -> AnyPipe<X, Z> {
   return Pipe(processor: left) |- Pipe(processor: right)
 }
 
-public func |- <X, Y, Right: PipeType where Right.PipeInput == Y> (left: (X) -> Y, right: Right) -> AnyPipe<X, Right.PipeOutput> {
+public func |- <X, Y, RightPipe: PipeType where RightPipe.PipeInput == Y> (left: (X) -> Y, right: RightPipe) -> AnyPipe<X, RightPipe.PipeOutput> {
   return Pipe(processor: left) |- right
 }
 
-public func |- <Y, Z, Left: PipeType where Left.PipeOutput == Y> (left: Left, right: (Y) -> Z) -> AnyPipe<Left.PipeInput, Z> {
+public func |- <Y, Z, LeftPipe: PipeType where LeftPipe.PipeOutput == Y> (left: LeftPipe, right: (Y) -> Z) -> AnyPipe<LeftPipe.PipeInput, Z> {
   return left |- Pipe(processor: right)
+}
+
+infix operator |~ { associativity left precedence 101 }
+public func |~ <X> (left: X, right: (X) -> ()) -> X {
+  right(left)
+  return left
 }
 
 // TODO: See if I can fuse an outputable to a pipe with the resulting type being AnyType<Void, X>.  That way I can fuse 
 //   the validation status in FormElement
-

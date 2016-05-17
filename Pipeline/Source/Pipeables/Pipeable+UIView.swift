@@ -9,16 +9,13 @@ public class ViewPipe<View where View:PipeableViewType, View.ViewValueType: Equa
   public typealias PipeInput = View.ViewValueType
   public typealias PipeOutput = View.ViewValueType
 
-  private let view: View
+  public let view: View
   public var pipe: AnyPipe<PipeInput, PipeOutput>
   private var target: Target? = nil
   
   public required init(_ view: View, events: UIControlEvents=UIControlEvents.EditingChanged) {
     self.view = view
     
-    let outputPipe = Pipe<PipeInput, PipeOutput> {
-      return $0
-    }
     let inputPipe = Pipe<PipeInput, PipeOutput> {
       view.setPipeableViewValue($0)
       return $0
@@ -26,6 +23,10 @@ public class ViewPipe<View where View:PipeableViewType, View.ViewValueType: Equa
     inputPipe.filter = {
       view.pipeableViewValue() != $0
     }
+    let outputPipe = Pipe<PipeInput, PipeOutput> {
+      return $0
+    }
+    inputPipe.connect(outputPipe)
     self.pipe = AnyPipe(input: inputPipe, output: outputPipe)
     
     if let control = view as? UIControl {

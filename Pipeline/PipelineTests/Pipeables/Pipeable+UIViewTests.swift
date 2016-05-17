@@ -13,6 +13,20 @@ import Pipeline
 
 class ViewPipeTests: XCTestCase {
   
+  // MARK: Generic tests
+  
+  func testViewPipesPassOnInputsToTheirOutputs() {
+    let view = UITextField()
+    let pipe = ViewPipe(view)
+    var output: String?
+    pipe |- Pipe<String, Void> {
+      output = $0
+    }
+    pipe.insert("test")
+    
+    XCTAssertEqual(output, "test")
+  }
+  
   // MARK: UIDatePicker
   
   func testUIDatePickerOutputsDate() {

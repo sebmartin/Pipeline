@@ -6,25 +6,35 @@
 //  Copyright © 2016 Seb Martin. All rights reserved.
 //
 
-public struct ViewProperty<X: Equatable, Y:UIControl where Y:PipeableViewType> {
-  public var valuePipe: Observable<X>
-  public var viewPipe: ViewPipe<Y>
-  public var isValidPipe: AnyOutputable<Bool>
-  
-  public init(value: X, view: Y, setup: (value: AnyPipe<X,X>, view: AnyPipe<Y.ViewValueType,Y.ViewValueType>, isValid: AnyPipe<Bool, Bool>) -> Void) {
-    let isValid = Observable<Bool>(true)
+
+public struct ViewProperty<ValueType: Equatable, ViewType:UIControl where ViewType:PipeableViewType> {
+  public var valuePipe: Observable<ValueType>
+  public var viewPipe: ViewPipe<ViewType>
+  public var isValidPipe: Observable<Bool>
+
+  public init <
+    ValuePipeType: PipeType,
+    ViewPipeType: PipeType
+    where
+      ValuePipeType.PipeInput == ValueType, ValuePipeType.PipeOutput == ViewType.ViewValueType,
+      ViewPipeType.PipeInput == ViewType.ViewValueType, ViewPipeType.PipeOutput == ValueType
+    >
+    (value: ValueType, view: ViewType, valueOut: ValuePipeType, viewOut: ViewPipeType, validator: Validator<ValueType>? = nil)
+  {
     valuePipe = Observable(value)
     viewPipe = ViewPipe(view)
-    isValidPipe = AnyOutputable(isValid)
+    isValidPipe = Observable(true)
     
-    let pipe1 = AnyPipe(valuePipe, weak: false)
-    let pipe2 = AnyPipe(viewPipe, weak: true)
-    setup(value: pipe1, view: pipe2, isValid: AnyPipe(isValid))
-    
-    valuePipe.pump()
+    let validator = validator ?? Validator<ValueType> { (value) in return true }
+
+    print(viewPipe.recursiveDescription([]))
+    viewPipe |- viewOut |- validator |~ {
+      $0 |- self.valuePipe |- valueOut |- AnyPipe(self.viewPipe, weak: true)
+      $0.isValid |- self.isValidPipe
+    }
   }
   
-  public var value: X {
+  public var value: ValueType {
     get {
       return valuePipe.value
     }
@@ -32,14 +42,74 @@ public struct ViewProperty<X: Equatable, Y:UIControl where Y:PipeableViewType> {
       valuePipe.value = value
     }
   }
+  
+  public var view: ViewType {
+    return viewPipe.view
+  }
+  
+  // MARK: - Convenience initializers
+  
+  // MARK: View and Value Pipe/Lambda permutations
+  
+  public init <ViewPipeType: PipeType where ViewPipeType.PipeInput == ViewType.ViewValueType, ViewPipeType.PipeOutput == ValueType>
+    (value: ValueType, view: ViewType, valueOut: (ValueType)->ViewType.ViewValueType, viewOut: ViewPipeType, validator: Validator<ValueType>? = nil)
+  {
+    let valuePipe = Pipe(processor: valueOut)
+    self.init(value: value, view: view, valueOut: valuePipe, viewOut: viewOut, validator: validator)
+  }
+  
+  public init <ValuePipeType: PipeType where ValuePipeType.PipeInput == ValueType, ValuePipeType.PipeOutput == ViewType.ViewValueType>
+    (value: ValueType, view: ViewType, valueOut: ValuePipeType, viewOut: (ViewType.ViewValueType)->(ValueType), validator: Validator<ValueType>? = nil)
+  {
+    let viewPipe = Pipe(processor: viewOut)
+    self.init(value: value, view: view, valueOut: valueOut, viewOut: viewPipe, validator: validator)
+  }
+
+  public init (value: ValueType, view: ViewType, valueOut: (ValueType)->ViewType.ViewValueType, viewOut: (ViewType.ViewValueType)->(ValueType), validator: Validator<ValueType>? = nil)
+  {
+    let valuePipe = Pipe(processor: valueOut)
+    let viewPipe = Pipe(processor: viewOut)
+    self.init(value: value, view: view, valueOut: valuePipe, viewOut: viewPipe, validator: validator)
+  }
+  
+  // MARK: Validator as a lambda
+  
+  public init <
+    ValuePipeType: PipeType,
+    ViewPipeType: PipeType
+    where
+    ValuePipeType.PipeInput == ValueType, ValuePipeType.PipeOutput == ViewType.ViewValueType,
+    ViewPipeType.PipeInput == ViewType.ViewValueType, ViewPipeType.PipeOutput == ValueType
+    >
+    (value: ValueType, view: ViewType, valueOut: ValuePipeType, viewOut: ViewPipeType, validator: (ValueType)->Bool)
+  {
+    self.init(value: value, view: view, valueOut: valueOut, viewOut: viewOut, validator: Validator(validate: validator))
+  }
+  
+  public init <ViewPipeType: PipeType where ViewPipeType.PipeInput == ViewType.ViewValueType, ViewPipeType.PipeOutput == ValueType>
+    (value: ValueType, view: ViewType, valueOut: (ValueType)->ViewType.ViewValueType, viewOut: ViewPipeType, validator: (ValueType)->Bool)
+  {
+    self.init(value: value, view: view, valueOut: valueOut, viewOut: viewOut, validator: Validator(validate: validator))
+  }
+  
+  public init <ValuePipeType: PipeType where ValuePipeType.PipeInput == ValueType, ValuePipeType.PipeOutput == ViewType.ViewValueType>
+    (value: ValueType, view: ViewType, valueOut: ValuePipeType, viewOut: (ViewType.ViewValueType)->(ValueType), validator: (ValueType)->Bool)
+  {
+    self.init(value: value, view: view, valueOut: valueOut, viewOut: viewOut, validator: Validator(validate: validator))
+  }
+  
+  public init (value: ValueType, view: ViewType, valueOut: (ValueType)->ViewType.ViewValueType, viewOut: (ViewType.ViewValueType)->(ValueType), validator: (ValueType)->Bool)
+  {
+    self.init(value: value, view: view, valueOut: valueOut, viewOut: viewOut, validator: Validator(validate: validator))
+  }
 }
 
-extension ViewProperty where X == Y.ViewValueType {
-  public init (value: X, view: Y) {
-    self.init(value: value, view: view) {
-      (value, view, isValid) in
-      value.connect(view)
-      view.connect(value)
-    }
+extension ViewProperty where ValueType == ViewType.ViewValueType {
+  public init(value: ValueType, view: ViewType, validator: Validator<ValueType>? = nil) {
+    self.init(value: value, view: view, valueOut: { return $0 }, viewOut: { return $0 }, validator: validator)
+  }
+  
+  public init(value: ValueType, view: ViewType, validator: (ValueType)->Bool) {
+    self.init(value: value, view: view, valueOut: { return $0 }, viewOut: { return $0 }, validator: Validator(validate: validator))
   }
 }

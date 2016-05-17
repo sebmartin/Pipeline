@@ -6,26 +6,6 @@
 //  Copyright © 2016 Seb Martin. All rights reserved.
 //
 
-public class AnyValidatorType<ValueType>: ValidatorType {
-  public typealias PipeInput = ValueType
-  public typealias PipeOutput = ValueType
-  
-  public init<V: ValidatorType where V.ValueType == ValueType>(_ validator: V) {
-    _pipe = { return validator.pipe }
-    _isValid = { return validator.isValid }
-  }
-  
-  private let _pipe: () -> AnyPipe<ValueType, ValueType>
-  public var pipe: AnyPipe<ValueType, ValueType> {
-    return _pipe()
-  }
-  
-  private let _isValid: () -> AnyPipe<ValueType, Bool>
-  public var isValid: AnyPipe<ValueType, Bool> {
-    return _isValid()
-  }
-}
-
 public protocol ValidatorType: Pipeable {
   associatedtype ValueType
   associatedtype PipeInput = ValueType

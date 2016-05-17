@@ -1,5 +1,5 @@
 //
-//  ViewFieldTests.swift
+//  ViewPropertyTests.swift
 //  Pipeline
 //
 //  Created by Seb Martin on 2016-04-07.
@@ -9,54 +9,239 @@
 import XCTest
 import Pipeline
 
-class ViewFieldTests: XCTestCase {
-  func testFieldPropertyWithCompatibleTypesHasDefaultSetupFunction() {
-    let value = "text"
-    let view = UITextField()
-    var prop = ViewProperty(value: value, view: view)
-    
-    prop.value = "something"
-    
-    XCTAssertEqual(view.text, "something")
+class ViewPropertyTests: XCTestCase {
+  // MARK: Initializers
+  
+  func testInitializeWithValuePipeViewPipeCompiles() {
+    let _ = ViewProperty(
+      value: 1 as Int, view: UITextField(),
+      valueOut: Pipe { "\($0)" },
+      viewOut: Pipe { Int($0) ?? 0 }
+    )
   }
   
-  func testFieldPropertyWithIncompatibleTypesCanBeUsedWithSetupFunction() {
-    let value = 1
-    let view = UITextField()
-    var prop = ViewProperty(value: value, view: view)
-    { (value, view, isValid) in
-      value |- { "\($0)" } |- view
-      view |- { Int($0) ?? 0 } |- value
-    }
-    
-    prop.value = 123
-    
-    XCTAssertEqual(view.text, "123")
+  func testInitializeWithValuePipeViewPipeAndValidatorCompiles() {
+    let _ = ViewProperty(
+      value: 1 as Int, view: UITextField(),
+      valueOut: Pipe { "\($0)" },
+      viewOut: Pipe { Int($0) ?? 0 },
+      validator: Validator { (input) in return true }
+    )
   }
   
-  func testChangingViewValueUpdatesTheModelValue() {
-    let value = "text"
-    let view = UITextField()
-    let prop = ViewProperty(value: value, view: view)
-    
-    let expectation = expectationWithDescription("Process event on main loop")
-    prop.viewPipe.connect(Pipe<String, Void>{ (intput) in
-      expectation.fulfill()
-    })
-    
-    view.text = "something"
-    view.sendActionsForControlEvents(.EditingChanged)
-
-    waitForExpectationsWithTimeout(1.0, handler: nil)
-    XCTAssertEqual(prop.value, "something")
+  func testInitializeWithValuePipeViewPipeAndValidatorLambdaCompiles() {
+    let _ = ViewProperty(
+      value: 1 as Int, view: UITextField(),
+      valueOut: Pipe { "\($0)" },
+      viewOut: Pipe { Int($0) ?? 0 },
+      validator: { (input) in return true }
+    )
   }
   
-  func testViewIsInitializedWithCurrentValue() {
-    let value = "text"
-    let view = UITextField()
-    let prop = ViewProperty(value: value, view: view)
+  func testInitializeWithValuePipeViewLambdaCompiles() {
+    let _ = ViewProperty(
+      value: 1 as Int, view: UITextField(),
+      valueOut: Pipe { "\($0)" },
+      viewOut: { Int($0) ?? 0 }
+    )
+  }
+  
+  func testInitializeWithValuePipeViewLambdaAndValidatorCompiles() {
+    let _ = ViewProperty(
+      value: 1 as Int, view: UITextField(),
+      valueOut: Pipe { "\($0)" },
+      viewOut: { Int($0) ?? 0 },
+      validator: Validator { (input) in return true }
+    )
+  }
+  
+  func testInitializeWithValuePipeViewLambdaAndValidatorLambdaCompiles() {
+    let _ = ViewProperty(
+      value: 1 as Int, view: UITextField(),
+      valueOut: Pipe { "\($0)" },
+      viewOut: { Int($0) ?? 0 },
+      validator: { (input) in return true }
+    )
+  }
+  
+  func testInitializeWithValueLambdaViewPipeCompiles() {
+    let _ = ViewProperty(
+      value: 1 as Int, view: UITextField(),
+      valueOut: { "\($0)" },
+      viewOut: Pipe { Int($0) ?? 0 }
+    )
+  }
+  
+  func testInitializeWithValueLambdaViewPipeAndValidatorCompiles() {
+    let _ = ViewProperty(
+      value: 1 as Int, view: UITextField(),
+      valueOut: { "\($0)" },
+      viewOut: Pipe { Int($0) ?? 0 },
+      validator: Validator { (input) in return true }
+    )
+  }
+  
+  func testInitializeWithValueLambdaViewPipeAndValidatorLambdaCompiles() {
+    let _ = ViewProperty(
+      value: 1 as Int, view: UITextField(),
+      valueOut: { "\($0)" },
+      viewOut: Pipe { Int($0) ?? 0 },
+      validator: { (input) in return true }
+    )
+  }
+  
+  func testInitializeWithValueLambdaViewLambdaCompiles() {
+    let _ = ViewProperty(
+      value: 1 as Int, view: UITextField(),
+      valueOut: { "\($0)" },
+      viewOut: { Int($0) ?? 0 }
+    )
+  }
+  
+  func testInitializeWithValueLambdaViewLambdaAndValidatorCompiles() {
+    let _ = ViewProperty(
+      value: 1 as Int, view: UITextField(),
+      valueOut: { "\($0)" },
+      viewOut: { Int($0) ?? 0 },
+      validator: Validator { (input) in return true }
+    )
+  }
+  
+  func testInitializeWithValueLambdaViewLambdaAndValidatorLambdaCompiles() {
+    let _ = ViewProperty(
+      value: 1 as Int, view: UITextField(),
+      valueOut: { "\($0)" },
+      viewOut: { Int($0) ?? 0 },
+      validator: { (input) in return true }
+    )
+  }
+  
+  func testInitializeWithMatchingValueAndViewTypesCompiles() {
+    let _ = ViewProperty(
+      value: "initial",
+      view: UITextField()
+    )
+  }
+  
+  func testInitializeWithMatchingValueAndViewTypesWithValidatorCompiles() {
+    let _ = ViewProperty(
+      value: "initial",
+      view: UITextField(),
+      validator: Validator { (input) in return true }
+    )
+  }
+  
+  func testInitializeWithMatchingValueAndViewTypesWithValidatorLambdaCompiles() {
+    let _ = ViewProperty(
+      value: "initial",
+      view: UITextField(),
+      validator: { (input) in return true }
+    )
+  }
+  
+  // MARK: Inserts and updates
+  
+  func testViewInsertsValueUpdatesValueObservable() {
+    var prop = ViewProperty(
+      value: "initial", view: UITextField(),
+      valueOut: { $0 },
+      viewOut: { $0 }
+    )
     
-    XCTAssertEqual(view.text, "text")
-    XCTAssertEqual(prop.value, "text")
+    prop.viewPipe.insert("updated")
+    
+    XCTAssertEqual(prop.value, "updated")
+    XCTAssertTrue(prop.isValidPipe.value)
+  }
+  
+  func testUpdatingValueUpdatesTheViewValue() {
+    var prop = ViewProperty(
+      value: "initial", view: UITextField(),
+      valueOut: { $0 },
+      viewOut: { $0 }
+    )
+    
+    prop.value = "updated"
+    
+    XCTAssertEqual(prop.view.text, "updated")
+  }
+  
+  func testViewInsertsWithDifferentViewAndValueTypesUpdatesTheValue() {
+    let prop = ViewProperty(
+      value: 1 as Int, view: UITextField(),
+      valueOut: { "\($0)" },
+      viewOut: { Int($0) ?? 0 }
+    )
+    
+    prop.viewPipe.insert("2")
+    
+    XCTAssertEqual(prop.value, 2)
+    XCTAssertTrue(prop.isValidPipe.value)
+  }
+  
+  func testValueInsertsWithDifferentViewAndValueTypesUpdatesTheView() {
+    var prop = ViewProperty(
+      value: 1, view: UITextField(),
+      valueOut: { "\($0)" },
+      viewOut: { Int($0) ?? 0 }
+    )
+    
+    prop.value = 2
+    
+    XCTAssertEqual(prop.view.text, "2")
+    XCTAssertTrue(prop.isValidPipe.value)
+  }
+  
+  func testViewEntersValidDataDataValueIsUpdated() {
+    let prop = ViewProperty(
+      value: 1, view: UITextField(),
+      valueOut: { "\($0)" },
+      viewOut: { Int($0) ?? 0 },
+      validator: Validator { $0 > 0 }
+    )
+    
+    prop.viewPipe.insert("2")
+    
+    XCTAssertEqual(prop.value, 2)
+    XCTAssertTrue(prop.isValidPipe.value)
+  }
+  
+  func testViewEntersInvalidDataDataValueIsNotUpdated() {
+    let prop = ViewProperty(
+      value: 1, view: UITextField(),
+      valueOut: { "\($0)" },
+      viewOut: { Int($0) ?? 0 },
+      validator: Validator { $0 < 0 }
+    )
+    
+    prop.viewPipe.insert("2")
+    
+    XCTAssertEqual(prop.value, 1)
+    XCTAssertFalse(prop.isValidPipe.value)
+  }
+  
+  func testInsertWithMatchingValueAndViewTypesIsUpdated() {
+    let prop = ViewProperty(
+      value: "initial",
+      view: UITextField()
+    )
+    
+    prop.viewPipe.insert("updated")
+    
+    XCTAssertEqual(prop.view.text, "updated")
+    XCTAssertTrue(prop.isValidPipe.value)
+  }
+  
+  func testInsertWithMatchingValueAndViewTypesWithInvalidDataIsNotUpdated() {
+    let prop = ViewProperty(
+      value: "initial",
+      view: UITextField(),
+      validator: { (input) in return false }
+    )
+    
+    prop.viewPipe.insert("updated")
+    
+    XCTAssertEqual(prop.value, "initial")
+    XCTAssertFalse(prop.isValidPipe.value)
   }
 }
