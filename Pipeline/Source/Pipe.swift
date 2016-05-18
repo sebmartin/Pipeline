@@ -88,7 +88,7 @@ public class Pipe<Input,Output>: Processable, PipeType {
   // MARK: Description
   
   public var description: String {
-    return "\(String(self.dynamicType)) (\(unsafeAddressOf(self))) (outputs: \(self.outputs.count))"
+    return "\(self.dynamicType) (\(unsafeAddressOf(self))) (outputs: \(self.outputs.count))"
   }
   
   public func recursiveDescription(seen: [String]) -> String {
@@ -104,7 +104,7 @@ public class Pipe<Input,Output>: Processable, PipeType {
         return true
       }
       .reduce([]) {
-        return $0 + $1.recursiveDescription(seen).characters.split("\n").map(String.init)
+        return $0 + $1.recursiveDescription(seen).characters.split("\n").map { (chars) in "\(chars)" }
       }
     var description = self.description
     if childDescriptions.count > 0 {
