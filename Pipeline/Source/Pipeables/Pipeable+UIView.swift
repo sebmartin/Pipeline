@@ -23,9 +23,11 @@ public class ViewPipe<View where View:PipeableViewType, View.ViewValueType: Equa
     inputPipe.filter = {
       view.pipeableViewValue() != $0
     }
+    
     let outputPipe = Pipe<PipeInput, PipeOutput> {
       return $0
     }
+    
     inputPipe.connect(outputPipe)
     self.pipe = AnyPipe(input: inputPipe, output: outputPipe)
     

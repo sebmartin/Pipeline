@@ -23,7 +23,7 @@ extension Pipeable {
     get { return pipe.description }
   }
   
-  public func recursiveDescription(seen: [String]) -> String {
+  public func recursiveDescription(seen: [String]=[]) -> String {
     return pipe.recursiveDescription(seen)
   }
 }

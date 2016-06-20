@@ -91,21 +91,17 @@ public class Pipe<Input,Output>: Processable, PipeType {
     return "\(self.dynamicType) (\(unsafeAddressOf(self))) (outputs: \(self.outputs.count))"
   }
   
-  public func recursiveDescription(seen: [String]) -> String {
+  public func recursiveDescription(seen: [String]=[]) -> String {
     var seen = seen
-    seen.append(self.description)
-    let childDescriptions = outputs
-      .filter {
-        let address = $0.description
-        if seen.contains(address) {
-          return false
-        }
-        seen.append(address)
-        return true
+    seen.append("\(self.dynamicType)")
+    let childDescriptions = outputs.reduce([String]()) {
+      let address = "\($1.dynamicType)"
+      if seen.contains(address) {
+        return $0 + ["\($1.description) ~~ CYCLE DETECTED"]
       }
-      .reduce([]) {
-        return $0 + $1.recursiveDescription(seen).characters.split("\n").map { (chars) in "\(chars)" }
-      }
+      seen.append(address)
+      return $0 + $1.recursiveDescription(seen).characters.split("\n").map{ String($0) }
+    }
     var description = self.description
     if childDescriptions.count > 0 {
       let innerBlock = childDescriptions.reduce("") { $0 + "\n  \($1)"}
@@ -147,7 +143,7 @@ public class AnyInputable<Input>: Inputable {
   }
   
   private let _recursiveDescription: ([String]) -> String
-  public func recursiveDescription(seen: [String]) -> String {
+  public func recursiveDescription(seen: [String]=[]) -> String {
     return _recursiveDescription(seen)
   }
 }
@@ -182,7 +178,7 @@ public class AnyOutputable<Output>: Outputable {
   }
   
   private let _recursiveDescription: ([String]) -> String
-  public func recursiveDescription(seen: [String]) -> String {
+  public func recursiveDescription(seen: [String]=[]) -> String {
     return _recursiveDescription(seen)
   }
 }
@@ -215,7 +211,7 @@ public class AnyPipe<Input, Output>: PipeType {
     return inputable.description
   }
   
-  public func recursiveDescription(seen: [String]) -> String {
+  public func recursiveDescription(seen: [String]=[]) -> String {
     return inputable.recursiveDescription(seen)
   }
 }
@@ -258,6 +254,3 @@ public func |~ <X> (left: X, right: (X) -> ()) -> X {
   right(left)
   return left
 }
-
-// TODO: See if I can fuse an outputable to a pipe with the resulting type being AnyType<Void, X>.  That way I can fuse 
-//   the validation status in FormElement

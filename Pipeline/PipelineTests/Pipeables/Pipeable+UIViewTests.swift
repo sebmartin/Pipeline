@@ -15,13 +15,29 @@ class ViewPipeTests: XCTestCase {
   
   // MARK: Generic tests
   
-  func testViewPipesPassOnInputsToTheirOutputs() {
+  func testViewPipesDoNotDeliverInputsThatMatchTheViewsCurrentValueToTheirOutputs() {
     let view = UITextField()
     let pipe = ViewPipe(view)
     var output: String?
     pipe |- Pipe<String, Void> {
       output = $0
     }
+    
+    view.text = "test"
+    pipe.insert("test")
+    
+    XCTAssertNil(output)
+  }
+  
+  func testViewPipesDeliverInputsToTheirOutputs() {
+    let view = UITextField()
+    let pipe = ViewPipe(view)
+    var output: String?
+    pipe |- Pipe<String, Void> {
+      output = $0
+    }
+    
+    view.text = ""
     pipe.insert("test")
     
     XCTAssertEqual(output, "test")

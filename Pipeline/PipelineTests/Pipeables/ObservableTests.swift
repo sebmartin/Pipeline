@@ -104,5 +104,16 @@ class ObservableTests: XCTestCase {
     
     XCTAssertEqual(observable.value, 123)
   }
+  
+  func testPumpReInsertsTheLastValue() {
+    var callCount = 0
+    let observable = Observable(1)
+    observable |- { callCount += $0 }
+    observable.pump()
+    observable.pump()
+    observable.pump()
+    
+    XCTAssertEqual(callCount, 3)
+  }
 }
 
