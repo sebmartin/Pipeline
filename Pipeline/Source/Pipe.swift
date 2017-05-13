@@ -11,13 +11,13 @@
 public protocol Inputable: class, DescribablePipe {
   associatedtype PipeInput
 
-  func insert(input: PipeInput)
+  func insert(_ input: PipeInput)
 }
 
 public protocol Outputable: class, DescribablePipe {
   associatedtype PipeOutput
   
-  func connect<I: Inputable where I.PipeInput == PipeOutput>(inputable: I)
+  func connect<I: Inputable>(_ inputable: I) where I.PipeInput == PipeOutput
 }
 
 public protocol Processable {
@@ -25,22 +25,22 @@ public protocol Processable {
   associatedtype PipeOutput
   
   var processor: (PipeInput) -> PipeOutput { get }
-  init(processor: (PipeInput) -> PipeOutput)
+  init(_ processor: @escaping (PipeInput) -> PipeOutput)
 }
 
 extension Processable where PipeInput == PipeOutput {
   // Default intializer iff input and output types match
   public init() {
-    self.init(processor: { return $0 })
+    self.init({ return $0 })
   }
 }
 
 public protocol PipeType: Inputable, Outputable {
-  func fuse<P: PipeType where P.PipeInput == PipeOutput>(pipe: P) -> AnyPipe<PipeInput, P.PipeOutput>
+  func fuse<P: PipeType>(_ pipe: P) -> AnyPipe<PipeInput, P.PipeOutput> where P.PipeInput == PipeOutput
 }
 
 extension PipeType {
-  public func fuse<P: PipeType where P.PipeInput == PipeOutput>(pipe: P) -> AnyPipe<PipeInput, P.PipeOutput> {
+  public func fuse<P: PipeType>(_ pipe: P) -> AnyPipe<PipeInput, P.PipeOutput> where P.PipeInput == PipeOutput {
     self.connect(pipe)
     return AnyPipe(input: self, output: pipe)
   }
@@ -52,23 +52,23 @@ public class Pipe<Input,Output>: Processable, PipeType {
   public typealias PipeInput = Input
   public typealias PipeOutput = Output
   
-  public var filter: (input: PipeInput) -> Bool = { (input) in true }
+  public var filter: (PipeInput) -> Bool = { (input) in true }
   
   // MARK: Processable
   
   public var processor: (PipeInput) -> PipeOutput
-  public required init(processor: (PipeInput) -> PipeOutput) {
+  public required init(_ processor: @escaping (PipeInput) -> PipeOutput) {
     self.processor = processor
   }
   
-  public func process(input: PipeInput) -> PipeOutput {
+  public func process(_ input: PipeInput) -> PipeOutput {
     return processor(input)
   }
   
   // MARK: Inputable
   
-  public func insert(input: PipeInput) {
-    if !filter(input: input) {
+  public func insert(_ input: PipeInput) {
+    if !filter(input) {
       return
     }
     let output = self.process(input)
@@ -80,7 +80,7 @@ public class Pipe<Input,Output>: Processable, PipeType {
   // MARK: Outputable
   
   public var outputs = [AnyInputable<PipeOutput>]()
-  public func connect<I : Inputable where I.PipeInput == PipeOutput>(inputable: I) {
+  public func connect<I : Inputable>(_ inputable: I) where I.PipeInput == PipeOutput {
     let inputableActual = inputable as? AnyInputable<Output> ?? AnyInputable(inputable)
     self.outputs.append(inputableActual)
   }
@@ -88,19 +88,20 @@ public class Pipe<Input,Output>: Processable, PipeType {
   // MARK: Description
   
   public var description: String {
-    return "\(self.dynamicType) (\(unsafeAddressOf(self))) (outputs: \(self.outputs.count))"
+    let address = UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())
+    return "\(type(of: self)) (\(address)) (outputs: \(self.outputs.count))"
   }
   
-  public func recursiveDescription(seen: [String]=[]) -> String {
+  public func recursiveDescription(_ seen: [String]=[]) -> String {
     var seen = seen
-    seen.append("\(self.dynamicType)")
+    seen.append("\(type(of: self))")
     let childDescriptions = outputs.reduce([String]()) {
-      let address = "\($1.dynamicType)"
+      let address = "\(type(of: $1))"
       if seen.contains(address) {
         return $0 + ["\($1.description) ~~ CYCLE DETECTED"]
       }
       seen.append(address)
-      return $0 + $1.recursiveDescription(seen).characters.split("\n").map{ String($0) }
+      return $0 + $1.recursiveDescription(seen).components(separatedBy: "\n")
     }
     var description = self.description
     if childDescriptions.count > 0 {
@@ -116,7 +117,7 @@ public class Pipe<Input,Output>: Processable, PipeType {
 public class AnyInputable<Input>: Inputable {
   public typealias PipeInput = Input
   
-  public init<I: Inputable where I.PipeInput == Input>(_ inputable: I, weak: Bool = false) {
+  public init<I: Inputable>(_ inputable: I, weak: Bool = false) where I.PipeInput == Input {
     weak var weakInputable = inputable
     if weak {
       _insert = { weakInputable?.insert($0) }
@@ -130,9 +131,9 @@ public class AnyInputable<Input>: Inputable {
     }
   }
   
-  private let _insert: (input: Input) -> Void
-  public func insert(input: Input) {
-    _insert(input: input)
+  private let _insert: (Input) -> Void
+  public func insert(_ input: Input) {
+    _insert(input)
   }
   
   private let _description: () -> String
@@ -143,7 +144,7 @@ public class AnyInputable<Input>: Inputable {
   }
   
   private let _recursiveDescription: ([String]) -> String
-  public func recursiveDescription(seen: [String]=[]) -> String {
+  public func recursiveDescription(_ seen: [String]=[]) -> String {
     return _recursiveDescription(seen)
   }
 }
@@ -151,7 +152,7 @@ public class AnyInputable<Input>: Inputable {
 public class AnyOutputable<Output>: Outputable {
   public typealias PipeOutput = Output
   
-  public init<_Outputable: Outputable where _Outputable.PipeOutput == Output>(_ outputable: _Outputable, weak: Bool = false) {
+  public init<_Outputable: Outputable>(_ outputable: _Outputable, weak: Bool = false) where _Outputable.PipeOutput == Output {
     weak var weakOutputable = outputable
     if weak {
       _connect = { weakOutputable?.connect($0) }
@@ -165,9 +166,9 @@ public class AnyOutputable<Output>: Outputable {
     }
   }
   
-  private var _connect: (inputable: AnyInputable<Output>) -> Void
-  public func connect<I : Inputable where I.PipeInput == Output>(inputable: I) {
-    _connect(inputable: AnyInputable(inputable))
+  private var _connect: (AnyInputable<Output>) -> Void
+  public func connect<I : Inputable>(_ inputable: I) where I.PipeInput == Output {
+    _connect(AnyInputable(inputable))
   }
   
   private let _description: () -> String
@@ -178,7 +179,7 @@ public class AnyOutputable<Output>: Outputable {
   }
   
   private let _recursiveDescription: ([String]) -> String
-  public func recursiveDescription(seen: [String]=[]) -> String {
+  public func recursiveDescription(_ seen: [String]=[]) -> String {
     return _recursiveDescription(seen)
   }
 }
@@ -190,20 +191,20 @@ public class AnyPipe<Input, Output>: PipeType {
   private let inputable: AnyInputable<Input>
   private let outputable: AnyOutputable<Output>
   
-  public convenience init<P: PipeType where P.PipeInput == Input, P.PipeOutput == Output>(_ pipe: P, weak: Bool = false) {
+  public convenience init<P: PipeType>(_ pipe: P, weak: Bool = false) where P.PipeInput == Input, P.PipeOutput == Output {
     self.init(input: pipe, output: pipe, weak: weak)
   }
   
-  public init<I: Inputable, O:Outputable where I.PipeInput == PipeInput, O.PipeOutput == PipeOutput>(input: I, output: O, weak: Bool = false) {
+  public init<I: Inputable, O:Outputable>(input: I, output: O, weak: Bool = false) where I.PipeInput == PipeInput, O.PipeOutput == PipeOutput {
     self.inputable = AnyInputable(input, weak: weak)
     self.outputable = AnyOutputable(output, weak: weak)
   }
   
-  public func insert(input: Input) {
+  public func insert(_ input: Input) {
     inputable.insert(input)
   }
   
-  public func connect<I: Inputable where I.PipeInput == Output>(inputable: I) {
+  public func connect<I: Inputable>(_ inputable: I) where I.PipeInput == Output {
     outputable.connect(AnyInputable(inputable))
   }
   
@@ -211,7 +212,7 @@ public class AnyPipe<Input, Output>: PipeType {
     return inputable.description
   }
   
-  public func recursiveDescription(seen: [String]=[]) -> String {
+  public func recursiveDescription(_ seen: [String]=[]) -> String {
     return inputable.recursiveDescription(seen)
   }
 }
@@ -219,7 +220,7 @@ public class AnyPipe<Input, Output>: PipeType {
 // MARK: - DescribablePipe
 
 public protocol DescribablePipe: CustomStringConvertible {
-  func recursiveDescription(seen: [String]) -> String
+  func recursiveDescription(_ seen: [String]) -> String
 }
 
 extension DescribablePipe {
@@ -232,25 +233,36 @@ extension DescribablePipe {
 
 // MARK: - Operator
 
-infix operator |- { associativity left precedence 100 }
-public func |- <LeftPipe: PipeType, RightPipe: PipeType where LeftPipe.PipeOutput == RightPipe.PipeInput>(left: LeftPipe, right: RightPipe) -> AnyPipe<LeftPipe.PipeInput, RightPipe.PipeOutput> {
+
+
+precedencegroup Pipe {
+  associativity: left
+  lowerThan: CastingPrecedence
+}
+precedencegroup PipeFunction {
+  associativity: left
+  higherThan: Pipe
+}
+
+infix operator |-: Pipe
+@discardableResult public func |- <LeftPipe: PipeType, RightPipe: PipeType>(left: LeftPipe, right: RightPipe) -> AnyPipe<LeftPipe.PipeInput, RightPipe.PipeOutput> where LeftPipe.PipeOutput == RightPipe.PipeInput {
   return left.fuse(right)
 }
 
-public func |- <X, Y, Z> (left: (X) -> Y, right: (Y) -> Z) -> AnyPipe<X, Z> {
-  return Pipe(processor: left) |- Pipe(processor: right)
+@discardableResult public func |- <X, Y, Z> (left: @escaping (X) -> Y, right: @escaping (Y) -> Z) -> AnyPipe<X, Z> {
+  return Pipe(left) |- Pipe(right)
 }
 
-public func |- <X, Y, RightPipe: PipeType where RightPipe.PipeInput == Y> (left: (X) -> Y, right: RightPipe) -> AnyPipe<X, RightPipe.PipeOutput> {
-  return Pipe(processor: left) |- right
+@discardableResult public func |- <X, Y, RightPipe: PipeType> (left: @escaping (X) -> Y, right: RightPipe) -> AnyPipe<X, RightPipe.PipeOutput> where RightPipe.PipeInput == Y {
+  return Pipe(left) |- right
 }
 
-public func |- <Y, Z, LeftPipe: PipeType where LeftPipe.PipeOutput == Y> (left: LeftPipe, right: (Y) -> Z) -> AnyPipe<LeftPipe.PipeInput, Z> {
-  return left |- Pipe(processor: right)
+@discardableResult public func |- <Y, Z, LeftPipe: PipeType> (left: LeftPipe, right: @escaping (Y) -> Z) -> AnyPipe<LeftPipe.PipeInput, Z> where LeftPipe.PipeOutput == Y {
+  return left |- Pipe(right)
 }
 
-infix operator |~ { associativity left precedence 101 }
-public func |~ <X> (left: X, right: (X) -> ()) -> X {
+infix operator |~: PipeFunction
+@discardableResult public func |~ <X> (left: X, right: (X) -> ()) -> X {
   right(left)
   return left
 }

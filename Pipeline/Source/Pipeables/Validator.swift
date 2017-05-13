@@ -21,12 +21,12 @@ public class Validator<ValueType>: ValidatorType {
   public var pipe: AnyPipe<ValueType, ValueType>
   public var isValid: AnyPipe<ValueType, Bool>
   
-  public init(validate: (value: ValueType) -> Bool) {
+  public init(validate: @escaping (ValueType) -> Bool) {
     let outputValue = AnyPipe(Pipe<ValueType, ValueType>())
     let outputIsValid = Observable(true)
     let input = Pipe {
       (input: ValueType) in
-      if validate(value: input) {
+      if validate(input) {
         outputValue.insert(input)
         outputIsValid.insert(true)
       } else {

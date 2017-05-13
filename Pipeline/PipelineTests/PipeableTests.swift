@@ -91,30 +91,30 @@ class PipeableTests: XCTestCase {
 
 // MARK: - Custom Pipeables
 
-extension PipeableTests {
-  private class IntToStringPipeable: Pipeable {
+fileprivate extension PipeableTests {
+  class IntToStringPipeable: Pipeable {
     typealias PipeInput = Int
     typealias PipeOutput = String
 
-    var pipe = AnyPipe(Pipe<PipeInput, PipeOutput>(processor: { return "custom \($0)" }))
+    var pipe = AnyPipe(Pipe({ (input: Int) in return "custom \(input)" }))
   }
   
-  private class IntToIntPipeable: Pipeable {
+  class IntToIntPipeable: Pipeable {
     typealias PipeInput = Int
     typealias PipeOutput = Int
     
-    var pipe = AnyPipe(Pipe<PipeInput, PipeOutput>(processor: { return $0 + 1 }))
+    var pipe = AnyPipe(Pipe({ return $0 + 1 }))
   }
   
-  private class CustomEndType: Pipeable {
+  class CustomEndType: Pipeable {
     typealias PipeInput = Int
     typealias PipeOutput = Void
     
-    let processor: ((PipeInput) -> PipeOutput)?
+    let processor: (PipeInput) -> PipeOutput?
     var pipe: AnyPipe<PipeInput, Void>
-    init(_ processor: (PipeInput) -> PipeOutput) {
+    init(_ processor: @escaping (PipeInput) -> PipeOutput) {
       self.processor = processor
-      self.pipe = AnyPipe(Pipe(processor: processor))
+      self.pipe = AnyPipe(Pipe(processor))
     }
   }
 }

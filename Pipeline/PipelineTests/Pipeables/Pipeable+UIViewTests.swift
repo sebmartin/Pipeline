@@ -19,7 +19,7 @@ class ViewPipeTests: XCTestCase {
     let view = UITextField()
     let pipe = ViewPipe(view)
     var output: String?
-    pipe |- Pipe<String, Void> {
+    pipe |- Pipe {
       output = $0
     }
     
@@ -33,7 +33,8 @@ class ViewPipeTests: XCTestCase {
     let view = UITextField()
     let pipe = ViewPipe(view)
     var output: String?
-    pipe |- Pipe<String, Void> {
+    pipe |- Pipe
+      {
       output = $0
     }
     
@@ -46,39 +47,39 @@ class ViewPipeTests: XCTestCase {
   // MARK: UIDatePicker
   
   func testUIDatePickerOutputsDate() {
-    let value = NSDate()
+    let value = Date()
     let datePicker = UIDatePicker()
-    var output: NSDate?
-    let pipeline = ViewPipe(datePicker, events: .ValueChanged) |- Pipe {
-      (input: NSDate) in
+    var output: Date?
+    let pipeline = ViewPipe(datePicker, events: .valueChanged) |- Pipe {
+      (input: Date) in
       output = input
     }
     
     datePicker.date = value
-    datePicker.sendActionsForControlEvents(.ValueChanged)
+    datePicker.sendActions(for: .valueChanged)
     
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
   }
   
   func testUIDatePickerDefaultsToValueChangedEvent() {
-    let value = NSDate()
+    let value = Date()
     let datePicker = UIDatePicker()
-    var output: NSDate?
+    var output: Date?
     let pipeline = datePicker |- Pipe {
-      (input: NSDate) in
+      (input: Date) in
       output = input
     }
     
     datePicker.date = value
-    datePicker.sendActionsForControlEvents(.EditingChanged)
+    datePicker.sendActions(for: .editingChanged)
     
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
   }
   
   func testUIDatePickerUpdatesOnInput() {
-    let value = NSDate()
+    let value = Date()
     let datePicker = UIDatePicker()
     let pipeline = Pipe() |- ViewPipe(datePicker)
     
@@ -88,7 +89,7 @@ class ViewPipeTests: XCTestCase {
   }
   
   func testUIDatePickerUpdatesOnInputDirect() {
-    let value = NSDate()
+    let value = Date()
     let datePicker = UIDatePicker()
     let pipeline = Pipe() |- datePicker
     
@@ -104,13 +105,13 @@ class ViewPipeTests: XCTestCase {
     let pageControl = UIPageControl()
     pageControl.numberOfPages = value + 1
     var output: Int?
-    let pipeline = ViewPipe(pageControl, events: .EditingChanged) |- Pipe {
+    let pipeline = ViewPipe(pageControl, events: .editingChanged) |- Pipe {
       (input: Int) in
       output = input
     }
     
     pageControl.currentPage = value
-    pageControl.sendActionsForControlEvents(.EditingChanged)
+    pageControl.sendActions(for: .editingChanged)
     
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
@@ -127,7 +128,7 @@ class ViewPipeTests: XCTestCase {
     }
     
     pageControl.currentPage = value
-    pageControl.sendActionsForControlEvents(.EditingChanged)
+    pageControl.sendActions(for: .editingChanged)
     
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
@@ -161,13 +162,13 @@ class ViewPipeTests: XCTestCase {
     let value = 0.7 as Float
     let view = UISlider()
     var output: Float?
-    let pipeline = ViewPipe(view, events: .EditingChanged) |- Pipe {
+    let pipeline = ViewPipe(view, events: .editingChanged) |- Pipe {
       (input: Float) in
       output = input
     }
     
     view.value = value
-    view.sendActionsForControlEvents(.EditingChanged)
+    view.sendActions(for: .editingChanged)
     
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
@@ -183,7 +184,7 @@ class ViewPipeTests: XCTestCase {
     }
     
     view.value = value
-    view.sendActionsForControlEvents(.EditingChanged)
+    view.sendActions(for: .editingChanged)
     
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
@@ -215,13 +216,13 @@ class ViewPipeTests: XCTestCase {
     let value = 0.7 as Double
     let view = UIStepper()
     var output: Double?
-    let pipeline = ViewPipe(view, events: .EditingChanged) |- Pipe {
+    let pipeline = ViewPipe(view, events: .editingChanged) |- Pipe {
       (input: Double) in
       output = input
     }
     
     view.value = value
-    view.sendActionsForControlEvents(.EditingChanged)
+    view.sendActions(for: .editingChanged)
     
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
@@ -237,7 +238,7 @@ class ViewPipeTests: XCTestCase {
     }
     
     view.value = value
-    view.sendActionsForControlEvents(.EditingChanged)
+    view.sendActions(for: .editingChanged)
     
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
@@ -269,13 +270,13 @@ class ViewPipeTests: XCTestCase {
     let value = true
     let view = UISwitch()
     var output: Bool?
-    let pipeline = ViewPipe(view, events: .EditingChanged) |- Pipe {
+    let pipeline = ViewPipe(view, events: .editingChanged) |- Pipe {
       (input: Bool) in
       output = input
     }
     
-    view.on = value
-    view.sendActionsForControlEvents(.EditingChanged)
+    view.isOn = value
+    view.sendActions(for: .editingChanged)
     
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
@@ -290,8 +291,8 @@ class ViewPipeTests: XCTestCase {
       output = input
     }
     
-    view.on = value
-    view.sendActionsForControlEvents(.EditingChanged)
+    view.isOn = value
+    view.sendActions(for: .editingChanged)
     
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
@@ -304,7 +305,7 @@ class ViewPipeTests: XCTestCase {
     
     pipeline.insert(value)
     
-    XCTAssertEqual(view.on, value)
+    XCTAssertEqual(view.isOn, value)
   }
   
   func testUISwitchUpdatesOnInputDirect() {
@@ -314,7 +315,7 @@ class ViewPipeTests: XCTestCase {
     
     pipeline.insert(value)
     
-    XCTAssertEqual(view.on, value)
+    XCTAssertEqual(view.isOn, value)
   }
   
   // MARK: UITextField
@@ -323,13 +324,13 @@ class ViewPipeTests: XCTestCase {
     let value = "Pipeline!"
     let view = UITextField()
     var output: String?
-    let pipeline = ViewPipe(view, events: .EditingChanged) |- Pipe {
+    let pipeline = ViewPipe(view, events: .editingChanged) |- Pipe {
       (input: String) in
       output = input
     }
     
     view.text = value
-    view.sendActionsForControlEvents(.EditingChanged)
+    view.sendActions(for: .editingChanged)
     
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc
@@ -345,7 +346,7 @@ class ViewPipeTests: XCTestCase {
     }
     
     view.text = value
-    view.sendActionsForControlEvents(.EditingChanged)
+    view.sendActions(for: .editingChanged)
     
     XCTAssertEqual(output, value)
     XCTAssertNotNil(pipeline) // To prevent premature dealloc

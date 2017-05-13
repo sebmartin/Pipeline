@@ -5,7 +5,7 @@
 //  Created by Seb Martin on 2016-03-09.
 //  Copyright © 2016 Seb Martin. All rights reserved.
 //
-public class ViewPipe<View where View:PipeableViewType, View.ViewValueType: Equatable>: Pipeable, PipeType {
+public class ViewPipe<View>: Pipeable, PipeType where View:PipeableViewType, View.ViewValueType: Equatable {
   public typealias PipeInput = View.ViewValueType
   public typealias PipeOutput = View.ViewValueType
 
@@ -13,7 +13,7 @@ public class ViewPipe<View where View:PipeableViewType, View.ViewValueType: Equa
   public var pipe: AnyPipe<PipeInput, PipeOutput>
   private var target: Target? = nil
   
-  public required init(_ view: View, events: UIControlEvents=UIControlEvents.EditingChanged) {
+  public required init(_ view: View, events: UIControlEvents=UIControlEvents.editingChanged) {
     self.view = view
     
     let inputPipe = Pipe<PipeInput, PipeOutput> {
@@ -37,7 +37,7 @@ public class ViewPipe<View where View:PipeableViewType, View.ViewValueType: Equa
       target.handler = {
         outputPipe.insert(view.pipeableViewValue())
       }
-      control.addTarget(target, action: #selector(Target.onControlEvent), forControlEvents: events)
+      control.addTarget(target, action: #selector(Target.onControlEvent), for: events)
     }
   }
 }
@@ -52,11 +52,11 @@ class Target: NSObject {
 
 // MARK: - Operator
 
-public func |- <V: PipeableViewType, P: PipeType where V: UIView, P.PipeInput == V.ViewValueType> (left: V, right: P) -> AnyPipe<V.ViewValueType, P.PipeOutput> {
+public func |- <V: PipeableViewType, P: PipeType> (left: V, right: P) -> AnyPipe<V.ViewValueType, P.PipeOutput> where V: UIView, P.PipeInput == V.ViewValueType {
   return ViewPipe(left) |- right
 }
 
-public func |- <P: PipeType, V: PipeableViewType where V: UIView, P.PipeOutput == V.ViewValueType> (left: P, right: V) -> AnyPipe<P.PipeInput, V.ViewValueType> {
+public func |- <P: PipeType, V: PipeableViewType> (left: P, right: V) -> AnyPipe<P.PipeInput, V.ViewValueType> where V: UIView, P.PipeOutput == V.ViewValueType {
   return left.fuse(ViewPipe(right))
 }
 
@@ -68,18 +68,18 @@ public protocol PipeableViewType {
   associatedtype PipeOutput = ViewValueType
   
   func pipeableViewValue() -> ViewValueType
-  func setPipeableViewValue(value: ViewValueType)
+  func setPipeableViewValue(_ value: ViewValueType)
 }
 
 // MARK: - Pipeable View Type Extensions
 
 extension UIDatePicker: PipeableViewType {
-  public typealias ViewValueType = NSDate
+  public typealias ViewValueType = Date
   
   public func pipeableViewValue() -> ViewValueType {
     return self.date
   }
-  public func setPipeableViewValue(value: ViewValueType) {
+  public func setPipeableViewValue(_ value: ViewValueType) {
     self.date = value
   }
 }
@@ -90,7 +90,7 @@ extension UIPageControl: PipeableViewType {
   public func pipeableViewValue() -> ViewValueType {
     return self.currentPage
   }
-  public func setPipeableViewValue(value: ViewValueType) {
+  public func setPipeableViewValue(_ value: ViewValueType) {
     self.currentPage = value
   }
 }
@@ -101,7 +101,7 @@ extension UISlider: PipeableViewType {
   public func pipeableViewValue() -> ViewValueType {
     return self.value
   }
-  public func setPipeableViewValue(value: ViewValueType) {
+  public func setPipeableViewValue(_ value: ViewValueType) {
     self.value = value
   }
 }
@@ -112,7 +112,7 @@ extension UIStepper: PipeableViewType {
   public func pipeableViewValue() -> ViewValueType {
     return self.value
   }
-  public func setPipeableViewValue(value: ViewValueType) {
+  public func setPipeableViewValue(_ value: ViewValueType) {
     self.value = value
   }
 }
@@ -121,10 +121,10 @@ extension UISwitch: PipeableViewType {
   public typealias ViewValueType = Bool
   
   public func pipeableViewValue() -> ViewValueType {
-    return self.on
+    return self.isOn
   }
-  public func setPipeableViewValue(value: ViewValueType) {
-    self.on = value
+  public func setPipeableViewValue(_ value: ViewValueType) {
+    self.isOn = value
   }
 }
 
@@ -134,7 +134,7 @@ extension UITextField: PipeableViewType {
   public func pipeableViewValue() -> ViewValueType {
     return self.text! // getter never returns nil
   }
-  public func setPipeableViewValue(value: ViewValueType) {
+  public func setPipeableViewValue(_ value: ViewValueType) {
     self.text = value
   }
 }
@@ -145,7 +145,7 @@ extension UILabel: PipeableViewType {
   public func pipeableViewValue() -> ViewValueType {
     return self.text ?? ""
   }
-  public func setPipeableViewValue(value: ViewValueType) {
+  public func setPipeableViewValue(_ value: ViewValueType) {
     self.text = value
   }
 }
@@ -156,7 +156,7 @@ extension UIProgressView: PipeableViewType {
   public func pipeableViewValue() -> ViewValueType {
     return self.progress
   }
-  public func setPipeableViewValue(value: ViewValueType) {
+  public func setPipeableViewValue(_ value: ViewValueType) {
     self.progress = value
   }
 }

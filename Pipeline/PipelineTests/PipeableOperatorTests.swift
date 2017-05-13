@@ -7,7 +7,7 @@
 //
 
 import XCTest
-import Pipeline
+@testable import Pipeline
 
 class PipeableOperatorTests: XCTestCase {
   func testPipeableOperatorOperatesInSeries() {
@@ -15,15 +15,15 @@ class PipeableOperatorTests: XCTestCase {
     var output2 = 0 as Int
     var output3 = 0 as Int
     
-    let p = Pipe<Int,Int> {
-      output1 = $0 + 1
+    let p = Pipe { (input: Int)->Int in
+      output1 = input + 1
       return output1
-    } |- Pipe {
-      output2 = $0 + 2
+    } |- Pipe { (input: Int)->Int in
+      output2 = input + 2
       return output2
-    } |- Pipe<Int,Int> {
-      output3 = $0 + 3
-      return $0
+    } |- Pipe { (input: Int)->Int in
+      output3 = input + 3
+      return output3
     }
     p.insert(Int(0))
     

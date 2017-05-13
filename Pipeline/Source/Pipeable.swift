@@ -11,11 +11,11 @@ public protocol Pipeable: PipeType {
 }
 
 extension Pipeable {
-  public func insert(input: PipeInput) {
+  public func insert(_ input: PipeInput) {
     pipe.insert(input)
   }
   
-  public func connect<I : Inputable where I.PipeInput == PipeOutput>(inputable: I) {
+  public func connect<I : Inputable>(_ inputable: I) where I.PipeInput == PipeOutput {
     pipe.connect(inputable)
   }
   
@@ -23,7 +23,7 @@ extension Pipeable {
     get { return pipe.description }
   }
   
-  public func recursiveDescription(seen: [String]=[]) -> String {
+  public func recursiveDescription(_ seen: [String]=[]) -> String {
     return pipe.recursiveDescription(seen)
   }
 }

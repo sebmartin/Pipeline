@@ -13,10 +13,10 @@ class PipeTests: XCTestCase {
   func testPipeWithSameInputAndOutputHasDefaultInitializer() {
     let value = 1000
     var output: Int?
-    let pipe = Pipe<Int,Int>()
-    pipe.connect(Pipe<Int,Int> {
-      output = $0
-      return $0
+    let pipe = Pipe({ return $0 } as (Int)->Int)
+    pipe |- Pipe( { (input: Int)->Int in
+      output = input
+      return input
     })
     
     pipe.insert(value)
@@ -42,12 +42,12 @@ class PipeTests: XCTestCase {
   
   func testFusedPipesReceiveInput() {
     var output: String?
-    let pipe = Pipe {
-      return $0 + 1
-      }.fuse(Pipe<Int,Int> {
-        return $0 + 2
-        }.fuse(Pipe<Int, String> {
-          output = "test \($0)"
+    let pipe = Pipe { (input: Int)->Int in
+      return input + 1
+      }.fuse(Pipe { (input: Int)->Int in
+        return input + 2
+        }.fuse(Pipe { (input: Int)->String in
+          output = "test \(input)"
           return output!
         }))
 
@@ -59,11 +59,11 @@ class PipeTests: XCTestCase {
   func testPipeConnectIsParrallellizable() {
     var output1 = "test"
     var output2 = "test"
-    let pipe = Pipe<Int,Int>()
-    pipe.connect(Pipe<Int,Void> {
+    let pipe = Pipe{ (input: Int) in return input }
+    pipe.connect(Pipe {
       output1 = "\(output1) \($0 + 2)"
     })
-    pipe.connect(Pipe<Int,Void> {
+    pipe.connect(Pipe {
       output2 = "\(output2) \($0 + 3)"
     })
     
@@ -76,12 +76,12 @@ class PipeTests: XCTestCase {
   func testPipeFuseIsParrallellizable() {
     var output1 = "test"
     var output2 = "test"
-    let pipe = Pipe<Int,Int>()
-    pipe.fuse(Pipe<Int,Void> {
-        output1 = "\(output1) \($0 + 2)"
+    let pipe = Pipe{ (input: Int) in return input }
+    _ = pipe.fuse(Pipe { (input: Int) in
+        output1 = "\(output1) \(input + 2)"
       })
-    pipe.fuse(Pipe<Int,Void> {
-        output2 = "\(output2) \($0 + 3)"
+    _ = pipe.fuse(Pipe { (input: Int) in
+        output2 = "\(output2) \(input + 3)"
       })
     
     pipe.insert(1)
